@@ -2,6 +2,7 @@
 
 echo "v0.0.1-dev.0-0-g3de3a45-master" \
     > "${SRC_DIR}/TVIPS-TOOLS-VERSION-FILE"
+rm "${SRC_DIR}/VERSION"
 
 cmake ${CMAKE_ARGS}                              \
     -DCMAKE_C_FLAGS:STRING="${CFLAGS} -Wall"     \
