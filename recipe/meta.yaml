@@ -28,6 +28,7 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake >=2.8.5,<4
     - coreutils
+    - make
     - libxslt >=0.13.0
   host:
     - libtiff 4.*
