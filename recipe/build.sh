@@ -1,17 +1,14 @@
 #! /bin/sh
 
-CPPFLAGS="-DPACKAGE_VERSION=${PKG_VERSION}"
-MAKEOPTS="-C ${SRC_DIR} -j ${CPU_COUNT}"
+echo "v0.0.1-dev.0-0-g3de3a45-master" \
+    > "${SRC_DIR}/TVIPS-TOOLS-VERSION-FILE"
+rm "${SRC_DIR}/VERSION"
 
-make ${MAKEOPTS}
-install -D                 \
-    "${SRC_DIR}/dm2smv"    \
-    "${SRC_DIR}/tiff2smv"  \
-    "${SRC_DIR}/tvips2smv" \
-    "${PREFIX}/bin"
+cmake ${CMAKE_ARGS}                              \
+    -DCMAKE_C_FLAGS:STRING="${CFLAGS} -Wall"     \
+    -DCMAKE_CXX_FLAGS:STRING="${CXXFLAGS} -Wall" \
+    "${SRC_DIR}"
 
-make ${MAKEOPTS} tiff2smv.1
-install -D                     \
-    "${SRC_DIR}/tiff2smv.1"    \
-    "${SRC_DIR}/tvips2smv.1"   \
-    "${PREFIX}/share/man/man1"
+cmake --build . --parallel "${CPU_COUNT}"
+cmake --build . --parallel "${CPU_COUNT}" --target man
+cmake --install . --prefix "${PREFIX}"
