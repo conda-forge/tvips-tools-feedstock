@@ -1,18 +1,20 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.0.0" %}
+{% set version = "0.0.1-dev.0" %}
 
 package:
   name: {{ tarname }}
-  version: {{ version }}
+  version: {{ version|replace('-dev.', '.dev') }}
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: 87b5416470e4fa93b08c97ae8c73f71552945058e7f3a963e64248530646403d
+  sha256: 2d0407d4d1920fdb1fb2ef0b687e0ca2fc1eec7d70c9514d91f8abb87fd38eb4
   patches:
     - 01-setenv.patch
     - 02-version.patch
-    - 03-warnings.patch
+    - 03-install.patch
+    - 04-test.patch
+    - 05-warnings.patch
 
 build:
   ignore_run_exports_from:
@@ -24,8 +26,8 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - cmake >=2.8.5,<4
     - coreutils
-    - make
     - libxslt >=0.13.0
   host:
     - libtiff 4.*
@@ -33,10 +35,11 @@ requirements:
     - {{ pin_compatible('libtiff', max_pin='x.x') }}
 
 test:
-  commands:
-    - dm2smv -V
-    - tiff2smv -V
-    - tvips2smv -V
+  requires:
+    - coreutils
+  source_files:
+    - test/*.tif
+    - test/*.tvips
 
 about:
   home: https://cryoem.ucla.edu/microed
