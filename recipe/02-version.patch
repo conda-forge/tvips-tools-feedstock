@@ -241,9 +241,9 @@ on case-insensitive macOS filesystems.
      OUTPUT_VARIABLE descriptions
      OUTPUT_STRIP_TRAILING_WHITESPACE)
    string(REGEX REPLACE ";" "\\\\;" descriptions "${descriptions}")
-@@ -81,13 +81,26 @@ elseif("${OUTPUT}" STREQUAL "patch")
-   string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\." "" patch "${patch}")
-   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${patch}")
+@@ -86,8 +86,21 @@ elseif("${OUTPUT}" STREQUAL "commit")
+   string(REGEX REPLACE "^v[\\.0-9-]+-g" "" commit "${commit}")
+   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${commit}")
  
 +elseif("${OUTPUT}" STREQUAL "prerelease")
 +  string(REGEX MATCH "^v[0-9]+\\.[0-9]+\\.[0-9]+-[^0-9][^+-]*" prerelease "${vi}")
@@ -255,11 +255,6 @@ on case-insensitive macOS filesystems.
 +  string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+-[^0-9][^+-]*\\+" "" buildmetadata "${buildmetadata}")
 +  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${buildmetadata}")
 +
- elseif("${OUTPUT}" STREQUAL "commit")
-   string(REGEX MATCH "^v[\\.0-9-]+-g[0-9a-f]+" commit "${vi}")
-   string(REGEX REPLACE "^v[\\.0-9-]+-g" "" commit "${commit}")
-   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${commit}")
- 
  elseif("${OUTPUT}" STREQUAL "branch")
 -  string(REGEX MATCH "-[^-]+$" branch "${vi}")
 +  string(REGEX MATCH "-\\(.+\\)$" branch "${vi}")
