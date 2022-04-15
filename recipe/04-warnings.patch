@@ -1,6 +1,6 @@
 --- tvips/tiff.c.orig
 +++ tvips/tiff.c
-@@ -227,15 +227,15 @@ _tiff_write(thandle_t handle, tdata_t ptr, tsize_t size)
+@@ -238,15 +238,15 @@ _tiff_write(thandle_t handle, tdata_t ptr, tsize_t size)
   *            otherwise
   */
  static uint16_t *
@@ -22,7 +22,7 @@
  
      switch (bps) {
      case 8:
-@@ -244,7 +244,7 @@ _tiff_cpy(uint32 w,
+@@ -255,7 +255,7 @@ _tiff_cpy(uint32 w,
           */
          for (i = 0; i < l; i++) {
              for (j = 0; j < w; j++)
@@ -31,7 +31,7 @@
          }
          return (dst);
  
-@@ -254,7 +254,7 @@ _tiff_cpy(uint32 w,
+@@ -265,7 +265,7 @@ _tiff_cpy(uint32 w,
           */
          for (i = 0; i < l; i++) {
              for (j = 0; j < w; j++)
@@ -40,7 +40,7 @@
          }
          return (dst);
      }
-@@ -285,13 +285,13 @@ _tiff_cpy(uint32 w,
+@@ -296,13 +296,13 @@ _tiff_cpy(uint32 w,
   * @return         Decoded raster, pass to free(3)
   */
  static uint16_t *
@@ -57,7 +57,19 @@
  
      raster = NULL;
      src_data = NULL;
-@@ -605,7 +605,7 @@ tvips_ctime_tiff(
+@@ -491,9 +491,9 @@ tvips_open_tiff(FILE *stream)
+     struct stat sb;
+     TIFFErrorHandler error_old, warning_old;
+     struct tvips_tiff *handle;
+-    uint32 *offset;
++    uint32_t *offset;
+     uint32_t version;
+-    uint16 count;
++    uint16_t count;
+     int fd;
+ #ifdef _WIN32
+     HANDLE fm;
+@@ -641,7 +641,7 @@ tvips_ctime_tiff(
      struct tm tm;
      const char *zone_old;
      time_t clock;
@@ -66,7 +78,7 @@
      int ret;
  
  
-@@ -613,6 +613,7 @@ tvips_ctime_tiff(
+@@ -649,6 +649,7 @@ tvips_ctime_tiff(
       * where the image was written.  According to Peter Sparlinek, the
       * timestamp is nowadays always recorded in localtime.
       */
@@ -74,7 +86,7 @@
      if (zone != NULL && zone[0] != '\0') {
          zone_old = getenv("TZ");
          if (setenv("TZ", zone, 1) != 0)
-@@ -698,11 +699,11 @@ tvips_ctime_tiff(
+@@ -734,11 +735,11 @@ tvips_ctime_tiff(
  struct frame *
  tvips_read_tiff(struct tvips_tiff *handle, const char *zone)
  {

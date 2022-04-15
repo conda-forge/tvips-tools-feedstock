@@ -1,6 +1,6 @@
 #! /bin/sh
 
-echo "v0.0.1-dev.1-0-g82f186c-master" \
+echo "v0.0.1-dev.2-0-g98ae930-master" \
     > "${SRC_DIR}/TVIPS-TOOLS-VERSION-FILE"
 rm "${SRC_DIR}/VERSION"
 

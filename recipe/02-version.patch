@@ -7,7 +7,7 @@ named VERSION, because that will clash with a system-provided header
 on case-insensitive macOS filesystems.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -27,64 +27,78 @@ find_package(TIFF 4.0.0 REQUIRED)
+@@ -30,64 +30,78 @@ find_package(TIFF 4.0.0 REQUIRED)
  
  
  # Determine the version, patch level, and the source status using the
@@ -16,7 +16,7 @@ on case-insensitive macOS filesystems.
 -# because it allows version.cmake to run in the absence of git(1).
 -# ${PACKAGE_TARNAME} is canonicalized from ${CMAKE_PROJECT_NAME}
 -# according to the GNU Automake rules, with the exception that
--# consecutive whitespace is transformed to a dash.
+-# consecutive white space is transformed to a dash.
 +# version.cmake script.  Provide a rule to generate the
 +# TVIPS-TOOLS-VERSION-FILE file in the binary directory, which is
 +# required by the dist target because it allows version.cmake to run
@@ -101,7 +101,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE PACKAGE_VERSION_STATUS
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -235,9 +249,9 @@ install(
+@@ -297,9 +311,9 @@ install(
  # the source directory.  In order to include the pre-built
  # documentation as well as the version information file, the dist
  # target must depend on the documentation files as well as
@@ -114,7 +114,7 @@ on case-insensitive macOS filesystems.
  add_custom_target(dist
    COMMAND ${CMAKE_COMMAND} -E copy
      "${PROJECT_BINARY_DIR}/tiff2smv.1" "${PROJECT_SOURCE_DIR}/tiff2smv.1"
-@@ -246,17 +260,18 @@ add_custom_target(dist
+@@ -308,17 +322,18 @@ add_custom_target(dist
    COMMAND ${CMAKE_COMMAND} -E copy
      "${PROJECT_BINARY_DIR}/tiff2smv.1" "${PROJECT_SOURCE_DIR}/tvips2smv.1"
    COMMAND ${CMAKE_COMMAND} -E copy
@@ -168,7 +168,7 @@ on case-insensitive macOS filesystems.
  {
 -    fprintf(stdout, "%s (%s) %d.%d.%d\n",
 +    fprintf(stdout, "%s (%s) %d.%d.%d%s%s\n",
-             _progname,
+             getprogname(),
              PACKAGE_NAME,
              PACKAGE_VERSION_MAJOR,
              PACKAGE_VERSION_MINOR,
@@ -203,7 +203,7 @@ on case-insensitive macOS filesystems.
  {
 -    fprintf(stdout, "%s (%s) %d.%d.%d\n",
 +    fprintf(stdout, "%s (%s) %d.%d.%d%s%s\n",
-             _progname,
+             getprogname(),
              PACKAGE_NAME,
              PACKAGE_VERSION_MAJOR,
              PACKAGE_VERSION_MINOR,
@@ -241,9 +241,9 @@ on case-insensitive macOS filesystems.
      OUTPUT_VARIABLE descriptions
      OUTPUT_STRIP_TRAILING_WHITESPACE)
    string(REGEX REPLACE ";" "\\\\;" descriptions "${descriptions}")
-@@ -86,8 +86,21 @@ elseif("${OUTPUT}" STREQUAL "commit")
-   string(REGEX REPLACE "^v[\\.0-9-]+-g" "" commit "${commit}")
-   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${commit}")
+@@ -81,13 +81,26 @@ elseif("${OUTPUT}" STREQUAL "patch")
+   string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\." "" patch "${patch}")
+   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${patch}")
  
 +elseif("${OUTPUT}" STREQUAL "prerelease")
 +  string(REGEX MATCH "^v[0-9]+\\.[0-9]+\\.[0-9]+-[^0-9][^+-]*" prerelease "${vi}")
@@ -255,6 +255,11 @@ on case-insensitive macOS filesystems.
 +  string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+-[^0-9][^+-]*\\+" "" buildmetadata "${buildmetadata}")
 +  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${buildmetadata}")
 +
+ elseif("${OUTPUT}" STREQUAL "commit")
+   string(REGEX MATCH "^v[\\.0-9-]+-g[0-9a-f]+" commit "${vi}")
+   string(REGEX REPLACE "^v[\\.0-9-]+-g" "" commit "${commit}")
+   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${commit}")
+ 
  elseif("${OUTPUT}" STREQUAL "branch")
 -  string(REGEX MATCH "-[^-]+$" branch "${vi}")
 +  string(REGEX MATCH "-\\(.+\\)$" branch "${vi}")
