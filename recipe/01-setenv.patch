@@ -1,7 +1,27 @@
 Avoid setenv(3) with zero-length name parameter.
---- tiff.c.orig
-+++ tiff.c
-@@ -609,7 +609,7 @@ tvips_ctime_tiff(
+--- tvips/frame.c.orig
++++ tvips/frame.c
+@@ -394,7 +394,7 @@ frame_read(FILE *stream)
+                 goto exit_error;
+             }
+ 
+-            if (setenv("TZ", "", 1) != 0)
++            if (unsetenv("TZ") != 0)
+                 goto exit_error;
+             tzset();
+ 
+@@ -593,7 +593,7 @@ exit_success:
+      * unsetenv(3) should not fail; if they do, they may prevent errno
+      * from representing the true cause of any previous error.
+      */
+-    if (zone_old)
++    if (zone_old != NULL && zone_old[0] != '\0')
+         setenv("TZ", zone_old, 1);
+     else
+         unsetenv("TZ");
+--- tvips/tiff.c.orig
++++ tvips/tiff.c
+@@ -649,7 +649,7 @@ tvips_ctime_tiff(
       * where the image was written.  According to Peter Sparlinek, the
       * timestamp is nowadays always recorded in localtime.
       */
@@ -10,7 +30,7 @@ Avoid setenv(3) with zero-length name parameter.
          zone_old = getenv("TZ");
          if (setenv("TZ", zone, 1) != 0)
              return (-1);
-@@ -679,7 +679,7 @@ tvips_ctime_tiff(
+@@ -719,7 +719,7 @@ tvips_ctime_tiff(
  
      /* Reset the timezone if it was changed.
       */

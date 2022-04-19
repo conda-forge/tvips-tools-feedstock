@@ -1,0 +1,18 @@
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -297,13 +297,13 @@ install(
+   FILES
+     "${PROJECT_SOURCE_DIR}/tiff2smv.1"
+     "${PROJECT_SOURCE_DIR}/tvips2smv.1"
+-  DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man1"
++  DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
+   OPTIONAL)
+ install(
+   FILES
+     "${PROJECT_BINARY_DIR}/tiff2smv.1"
+     "${PROJECT_BINARY_DIR}/tvips2smv.1"
+-  DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man1"
++  DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
+   OPTIONAL)
+ 
+ 
