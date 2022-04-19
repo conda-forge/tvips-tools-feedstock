@@ -24,10 +24,9 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - cmake >=2.8.5,<4
-    - coreutils     # [unix]
+    - cmake   >=2.8.5,<4
     - libxslt >=0.13.0
-    - make          # [unix]
+    - make                # [unix]
   host:
     - libtiff 4.*
   run:
