@@ -7,122 +7,39 @@ named VERSION, because that will clash with a system-provided header
 on case-insensitive macOS filesystems.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -30,64 +30,78 @@ find_package(TIFF 4.0.0 REQUIRED)
+@@ -116,14 +116,14 @@ CHECK_FUNCTION_EXISTS(getprogname HAVE_GETPROGNAME)
+ CHECK_FUNCTION_EXISTS(setprogname HAVE_SETPROGNAME)
  
  
- # Determine the version, patch level, and the source status using the
--# version.cmake script.  Provide a rule to generate the VERSION file
--# in the binary directory, which is required by the dist target
--# because it allows version.cmake to run in the absence of git(1).
--# ${PACKAGE_TARNAME} is canonicalized from ${CMAKE_PROJECT_NAME}
--# according to the GNU Automake rules, with the exception that
--# consecutive white space is transformed to a dash.
-+# version.cmake script.  Provide a rule to generate the
-+# TVIPS-TOOLS-VERSION-FILE file in the binary directory, which is
-+# required by the dist target because it allows version.cmake to run
-+# in the absence of git(1).  ${PACKAGE_TARNAME} is canonicalized from
-+# ${CMAKE_PROJECT_NAME} according to the GNU Automake rules, with the
-+# exception that consecutive whitespace is transformed to a dash.
+-# Add a rule to generate the VERSION file in the source directory,
+-# which is required by the dist target.
++# Add a rule to generate the TVIPS-TOOLS-VERSION-FILE file in the
++# source directory, which is required by the dist target.
  add_custom_command(
    COMMAND ${CMAKE_COMMAND}
--    "-DPATH=${PROJECT_BINARY_DIR}/VERSION"
-+    "-DPATH=${PROJECT_BINARY_DIR}/TVIPS-TOOLS-VERSION-FILE"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
      "-DWRITE:BOOL=true"
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
--  OUTPUT "${PROJECT_BINARY_DIR}/VERSION")
-+  OUTPUT "${PROJECT_BINARY_DIR}/TVIPS-TOOLS-VERSION-FILE")
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=major"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_MAJOR
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=minor"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_MINOR
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=patch"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_PATCH
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=tweak"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_TWEAK
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
-+execute_process(
-+  COMMAND ${CMAKE_COMMAND}
-+    "-DOUTPUT=prerelease"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-+    -P "${PROJECT_SOURCE_DIR}/version.cmake"
-+  OUTPUT_VARIABLE PACKAGE_VERSION_PRERELEASE
-+  OUTPUT_STRIP_TRAILING_WHITESPACE)
-+execute_process(
-+  COMMAND ${CMAKE_COMMAND}
-+    "-DOUTPUT=buildmetadata"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-+    -P "${PROJECT_SOURCE_DIR}/version.cmake"
-+  OUTPUT_VARIABLE PACKAGE_VERSION_BUILDMETADATA
-+  OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=branch"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_BRANCH
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=commit"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_COMMIT
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
- execute_process(
-   COMMAND ${CMAKE_COMMAND}
-     "-DOUTPUT=status"
--    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
-+    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-     -P "${PROJECT_SOURCE_DIR}/version.cmake"
-   OUTPUT_VARIABLE PACKAGE_VERSION_STATUS
-   OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -297,9 +311,9 @@ install(
+-  OUTPUT "${PROJECT_SOURCE_DIR}/VERSION"
++  OUTPUT "${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+   VERBATIM)
+ 
+ 
+@@ -286,9 +286,9 @@ install(
  # the source directory.  In order to include the pre-built
  # documentation as well as the version information file, the dist
  # target must depend on the documentation files as well as
--# ${PROJECT_BINARY_DIR}/VERSION.  These files are copied to
--# ${PROJECT_SOURCE_DIR} and removed once the package_source target has
--# completed.
-+# ${PROJECT_BINARY_DIR}/TVIPS-TOOLS-VERSION-FILE.  These files are
-+# copied to ${PROJECT_SOURCE_DIR} and removed once the package_source
-+# target has completed.
- add_custom_target(dist
-   COMMAND ${CMAKE_COMMAND} -E copy
-     "${PROJECT_BINARY_DIR}/tiff2smv.1" "${PROJECT_SOURCE_DIR}/tiff2smv.1"
-@@ -308,17 +322,18 @@ add_custom_target(dist
-   COMMAND ${CMAKE_COMMAND} -E copy
-     "${PROJECT_BINARY_DIR}/tiff2smv.1" "${PROJECT_SOURCE_DIR}/tvips2smv.1"
-   COMMAND ${CMAKE_COMMAND} -E copy
--    "${PROJECT_BINARY_DIR}/VERSION" "${PROJECT_SOURCE_DIR}/VERSION"
-+    "${PROJECT_BINARY_DIR}/TVIPS-TOOLS-VERSION-FILE"
-+    "${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
-   COMMAND ${CMAKE_MAKE_PROGRAM} package_source
-   COMMAND ${CMAKE_COMMAND} -E remove
+-# ${PROJECT_SOURCE_DIR}/VERSION.  The documentation files are copied
+-# to ${PROJECT_SOURCE_DIR} and removed once the package_source target
+-# has completed.
++# ${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE.  The documentation
++# files are copied to ${PROJECT_SOURCE_DIR} and removed once the
++# package_source target has completed.
+ #
+ # Determine the version, patch level, and the source status as in
+ # config.cmake.  ${version_branch}, which is the last component of the
+@@ -310,17 +310,17 @@ add_custom_target(dist
      "${PROJECT_SOURCE_DIR}/tiff2smv.1"
      "${PROJECT_SOURCE_DIR}/tiff2smv.pdf"
      "${PROJECT_SOURCE_DIR}/tvips2smv.1"
@@ -131,117 +48,213 @@ on case-insensitive macOS filesystems.
    DEPENDS "${PROJECT_BINARY_DIR}/tiff2smv.1"
    DEPENDS "${PROJECT_BINARY_DIR}/tiff2smv.pdf"
    DEPENDS "${PROJECT_BINARY_DIR}/tvips2smv.1"
--  DEPENDS "${PROJECT_BINARY_DIR}/VERSION")
-+  DEPENDS "${PROJECT_BINARY_DIR}/TVIPS-TOOLS-VERSION-FILE")
+-  DEPENDS "${PROJECT_SOURCE_DIR}/VERSION"
++  DEPENDS "${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+   VERBATIM)
  
- set(CPACK_PACKAGE_NAME "${PACKAGE_TARNAME}")
- set(CPACK_PACKAGE_VERSION_MAJOR "${PACKAGE_VERSION_MAJOR}")
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=major"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_MAJOR
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -328,7 +328,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=minor"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_MINOR
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -336,7 +336,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=patch"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_PATCH
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -344,7 +344,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=tweak"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE version_tweak
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -352,7 +352,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=branch"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE version_branch
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -363,7 +363,7 @@ string(REGEX REPLACE "[^-@0-9a-zA-Z]" "_" version_branch "${version_branch}")
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=status"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE version_status
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+--- tvips/config.cmake.orig
++++ tvips/config.cmake
+@@ -13,7 +13,7 @@
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=major"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_MAJOR
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -21,7 +21,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=minor"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_MINOR
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -29,7 +29,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=patch"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_PATCH
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -37,15 +37,31 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=tweak"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_TWEAK
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+ 
++execute_process(
++  COMMAND ${CMAKE_COMMAND}
++    "-DOUTPUT=prerelease"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
++    -P "${PROJECT_SOURCE_DIR}/version.cmake"
++  OUTPUT_VARIABLE PACKAGE_VERSION_PRERELEASE
++  OUTPUT_STRIP_TRAILING_WHITESPACE)
++
++execute_process(
++  COMMAND ${CMAKE_COMMAND}
++    "-DOUTPUT=buildmetadata"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
++    -P "${PROJECT_SOURCE_DIR}/version.cmake"
++  OUTPUT_VARIABLE PACKAGE_VERSION_BUILDMETADATA
++  OUTPUT_STRIP_TRAILING_WHITESPACE)
++
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=branch"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_BRANCH
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -53,7 +69,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=commit"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_COMMIT
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
+@@ -61,7 +77,7 @@ execute_process(
+ execute_process(
+   COMMAND ${CMAKE_COMMAND}
+     "-DOUTPUT=status"
+-    "-DPATH=${PROJECT_SOURCE_DIR}/VERSION"
++    "-DPATH=${PROJECT_SOURCE_DIR}/TVIPS-TOOLS-VERSION-FILE"
+     -P "${PROJECT_SOURCE_DIR}/version.cmake"
+   OUTPUT_VARIABLE PACKAGE_VERSION_STATUS
+   OUTPUT_STRIP_TRAILING_WHITESPACE)
 --- tvips/config.h.in.orig
 +++ tvips/config.h.in
-@@ -29,6 +29,10 @@
+@@ -37,6 +37,10 @@
   */
- #define PACKAGE_VERSION_BRANCH "@PACKAGE_VERSION_BRANCH@"
+ #define PACKAGE_VERSION_BRANCH "${PACKAGE_VERSION_BRANCH}"
  
 +/* Build metadata identifier, if any
 + */
-+#define PACKAGE_VERSION_BUILDMETADATA "@PACKAGE_VERSION_BUILDMETADATA@"
++#define PACKAGE_VERSION_BUILDMETADATA "${PACKAGE_VERSION_BUILDMETADATA}"
 +
  /* The integer major version of the package
   */
- #define PACKAGE_VERSION_MAJOR @PACKAGE_VERSION_MAJOR@
-@@ -41,6 +45,10 @@
+ #define PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR}
+@@ -49,6 +53,10 @@
   */
- #define PACKAGE_VERSION_PATCH @PACKAGE_VERSION_PATCH@
+ #define PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH}
  
 +/* Pre-release identifier, if any
 + */
-+#define PACKAGE_VERSION_PRERELEASE "@PACKAGE_VERSION_PRERELEASE@"
++#define PACKAGE_VERSION_PRERELEASE "${PACKAGE_VERSION_PRERELEASE}"
 +
  /* The number of additional commits on top of the tagged object
   */
- #define PACKAGE_VERSION_TWEAK @PACKAGE_VERSION_TWEAK@
---- tvips/tiff2smv.c.orig
-+++ tvips/tiff2smv.c
-@@ -112,19 +112,27 @@ usage(int eval)
- static void
- version()
- {
--    fprintf(stdout, "%s (%s) %d.%d.%d\n",
-+    fprintf(stdout, "%s (%s) %d.%d.%d%s%s\n",
-             getprogname(),
-             PACKAGE_NAME,
-             PACKAGE_VERSION_MAJOR,
-             PACKAGE_VERSION_MINOR,
--            PACKAGE_VERSION_PATCH);
-+            PACKAGE_VERSION_PATCH,
-+            strlen(PACKAGE_VERSION_PRERELEASE) > 0
-+            ? "-"  PACKAGE_VERSION_PRERELEASE
-+            : "",
-+            strlen(PACKAGE_VERSION_BUILDMETADATA) > 0
-+            ? "+"  PACKAGE_VERSION_BUILDMETADATA
-+            : "");
+ #define PACKAGE_VERSION_TWEAK ${PACKAGE_VERSION_TWEAK}
+--- tvips/util.c.orig
++++ tvips/util.c
+@@ -151,20 +151,26 @@ version()
+                 PACKAGE_NAME);
  
-     if (PACKAGE_VERSION_TWEAK > 0 ||
--        strcasecmp(PACKAGE_VERSION_BRANCH, "master") != 0 ||
-         strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
--        fprintf(stdout,  "    %s.%s%s\n",
-+        fprintf(stdout,  "    %s%s%s\n",
-                 PACKAGE_VERSION_BRANCH,
--                PACKAGE_VERSION_COMMIT,
-+                strpbrk(PACKAGE_VERSION_BRANCH, " \t") == NULL
-+                && strlen(PACKAGE_VERSION_COMMIT) > 0
-+                ? "." PACKAGE_VERSION_COMMIT
+     } else {
+-        fprintf(stdout, "%s (%s) %d.%d.%d\n",
++        fprintf(stdout, "%s (%s) %d.%d.%d%s%s\n",
+                 getprogname(),
+                 PACKAGE_NAME,
+                 PACKAGE_VERSION_MAJOR,
+                 PACKAGE_VERSION_MINOR,
+-                PACKAGE_VERSION_PATCH);
++                PACKAGE_VERSION_PATCH,
++                strlen(PACKAGE_VERSION_PRERELEASE) > 0
++                ? "-"  PACKAGE_VERSION_PRERELEASE
 +                : "",
-                 strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0
-                 ? " with uncommitted edits"
-                 : "");
---- tvips/tvips2smv.c.orig
-+++ tvips/tvips2smv.c
-@@ -530,19 +530,27 @@ usage(int eval)
- static void
- version()
- {
--    fprintf(stdout, "%s (%s) %d.%d.%d\n",
-+    fprintf(stdout, "%s (%s) %d.%d.%d%s%s\n",
-             getprogname(),
-             PACKAGE_NAME,
-             PACKAGE_VERSION_MAJOR,
-             PACKAGE_VERSION_MINOR,
--            PACKAGE_VERSION_PATCH);
-+            PACKAGE_VERSION_PATCH,
-+            strlen(PACKAGE_VERSION_PRERELEASE) > 0
-+            ? "-"  PACKAGE_VERSION_PRERELEASE
-+            : "",
-+            strlen(PACKAGE_VERSION_BUILDMETADATA) > 0
-+            ? "+"  PACKAGE_VERSION_BUILDMETADATA
-+            : "");
++                strlen(PACKAGE_VERSION_BUILDMETADATA) > 0
++                ? "+"  PACKAGE_VERSION_BUILDMETADATA
++                : "");
  
-     if (PACKAGE_VERSION_TWEAK > 0 ||
--        strcasecmp(PACKAGE_VERSION_BRANCH, "master") != 0 ||
-         strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
--        fprintf(stdout,  "    %s.%s%s\n",
-+        fprintf(stdout,  "    %s%s%s\n",
-                 PACKAGE_VERSION_BRANCH,
--                PACKAGE_VERSION_COMMIT,
-+                strpbrk(PACKAGE_VERSION_BRANCH, " \t") == NULL
-+                && strlen(PACKAGE_VERSION_COMMIT) > 0
-+                ? "." PACKAGE_VERSION_COMMIT
-+                : "",
-                 strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0
-                 ? " with uncommitted edits"
-                 : "");
+         if (PACKAGE_VERSION_TWEAK > 0 ||
+-            strcasecmp(PACKAGE_VERSION_BRANCH, "master") != 0 ||
+             strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
+ 
+             fprintf(stdout,  "    %s%s",
+                     PACKAGE_VERSION_BRANCH,
+-                    strlen(PACKAGE_VERSION_COMMIT) > 0
++                    strpbrk(PACKAGE_VERSION_BRANCH, " \t") == NULL
++                    && strlen(PACKAGE_VERSION_COMMIT) > 0
+                     ? "." PACKAGE_VERSION_COMMIT
+                     : "");
+             if (strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
 --- tvips/version.cmake.orig
 +++ tvips/version.cmake
 @@ -28,7 +28,7 @@ else()
    find_program(git git)
  
    execute_process(
--    COMMAND "${git}" describe --abbrev=7 --match "v[0-9]*" --dirty
+-    COMMAND "${git}" describe --abbrev=7 --match "v[0-9]*" --dirty=-dirty
 +    COMMAND "${git}" describe --dirty --long --match "v[0-9]*" --tags
+     ERROR_VARIABLE errors
      OUTPUT_VARIABLE descriptions
-     OUTPUT_STRIP_TRAILING_WHITESPACE)
-   string(REGEX REPLACE ";" "\\\\;" descriptions "${descriptions}")
-@@ -81,13 +81,26 @@ elseif("${OUTPUT}" STREQUAL "patch")
+     OUTPUT_STRIP_TRAILING_WHITESPACE
+@@ -96,13 +96,26 @@ elseif("${OUTPUT}" STREQUAL "patch")
    string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\." "" patch "${patch}")
    execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${patch}")
  
