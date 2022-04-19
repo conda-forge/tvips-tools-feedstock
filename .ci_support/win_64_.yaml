@@ -3,7 +3,7 @@ c_compiler:
 channel_sources:
 - conda-forge
 channel_targets:
-- conda-forge tvips-tools_dev
+- conda-forge main
 cxx_compiler:
 - m2w64-toolchain
 target_platform:
