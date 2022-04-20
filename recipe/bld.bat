@@ -1,6 +1,6 @@
 @echo off
 
-echo v0.0.1-0-g8a065ac-master ^
+echo v0.0.2-0-g5579813-master ^
     > "%SRC_DIR%\TVIPS-TOOLS-VERSION-FILE"
 del "%SRC_DIR%\VERSION"
 
@@ -18,4 +18,9 @@ cmake --build . --parallel "%CPU_COUNT%" --target man
 if errorlevel 1 exit /b 1
 
 cmake --install . --prefix "%PREFIX%"
+if errorlevel 1 exit /b 1
+
+install -D                             ^
+    "%SRC_DIR%\README"                 ^
+    "%PREFIX%\share\%PKG_NAME%\README"
 if errorlevel 1 exit /b 1

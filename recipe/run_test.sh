@@ -1,16 +1,16 @@
 #! /bin/sh
 
 "${PREFIX}/bin/tiff2smv"              \
-    -o "t_###.img" -z EST5EDT         \
+    -a -o "t_###.img" -z EST5EDT      \
     "${SRC_DIR}/test/movie23_000.tif"
 cat << EOF | md5sum -c -
-0f45b68aec48c76afb8c7ccbbadf9eb4  t_000.img
+29a3d5c42f0a2a05312a587934f1ab76  t_000.img
 EOF
 
 "${PREFIX}/bin/tvips2smv"               \
-    -o "t_###.img" -z EST5EDT           \
+    -a -o "t_###.img" -z EST5EDT        \
     "${SRC_DIR}/test/movie23_000.tvips"
 cat << EOF | md5sum -c -
-0f45b68aec48c76afb8c7ccbbadf9eb4  t_000.img
-32c23a4806552ce487569a17ecb60e59  t_001.img
+29a3d5c42f0a2a05312a587934f1ab76  t_000.img
+5b8e05d443eea3ebc0a6c62965137d30  t_001.img
 EOF
