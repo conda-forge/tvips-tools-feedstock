@@ -20,8 +20,8 @@ build:
     - {{ compiler('cxx') }}
   number: 0
   script_env:
-    - USER     # [unix]
-    - USERNAME # [win]
+    - USER      # [unix]
+    - USERNAME  # [win]
 
 requirements:
   build:
