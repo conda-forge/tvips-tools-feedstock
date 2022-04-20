@@ -1,0 +1,229 @@
+Conditionally include err.h on platforms that have it.  compat.c
+provides fallback implementations for the necessary functions.
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -84,6 +84,10 @@ CHECK_C_SOURCE_COMPILES("
+   BSWAP_STDLIB_H)
+ 
+ 
++# Check if <err.h> can be included.
++check_include_file(err.h HAVE_ERR_H)
++
++
+ # Check whether certain error numbers are defined by <errno.h>.
+ CHECK_SYMBOL_EXISTS(EMSGSIZE errno.h HAVE_EMSGSIZE)
+ CHECK_SYMBOL_EXISTS(ENOMSG errno.h HAVE_ENOMSG)
+@@ -160,11 +164,13 @@ set(BUILD_JIFFIES OFF CACHE BOOL
+   "Build MicroED developer jiffies, not for distribution")
+ if(BUILD_JIFFIES)
+ add_executable(cphdr
++  "compat.c"
+   "cphdr.c"
+   "frame.c")
+ add_dependencies(cphdr _update_config_h)
+ 
+ add_executable(dan_test
++  "compat.c"
+   "dan_test.c"
+   "frame.c")
+ add_dependencies(dan_test _update_config_h)
+@@ -184,12 +190,14 @@ target_link_libraries(dumpframe ${TIFF_LIBRARIES})
+ 
+ if(BUILD_JIFFIES)
+ add_executable(fixpoint
++  "compat.c"
+   "delta_t.cpp"
+   "fixpoint.c")
+ add_dependencies(fixpoint _update_config_h)
+ target_link_libraries(fixpoint fftw3)
+ 
+ add_executable(img2img
++  "compat.c"
+   "frame.c"
+   "img2img.c")
+ add_dependencies(img2img _update_config_h)
+@@ -204,11 +212,13 @@ add_executable(img2px
+ add_dependencies(img2px _update_config_h)
+ 
+ add_executable(img2splot
++  "compat.c"
+   "frame.c"
+   "img2splot.c")
+ add_dependencies(img2splot _update_config_h)
+ 
+ add_executable(imgcorr
++  "compat.c"
+   "imgcorr.c"
+   "frame.c")
+ add_dependencies(imgcorr _update_config_h)
+@@ -222,6 +232,7 @@ add_executable(imgrevert
+ add_dependencies(imgrevert _update_config_h)
+ 
+ add_executable(rawdump
++  "compat.c"
+   "rawdump.c")
+ target_link_libraries(rawdump m)
+ 
+--- tvips/config.h.in.orig
++++ tvips/config.h.in
+@@ -130,9 +130,6 @@
+  * of the non-standard err(3) and warnx(3) functions.
+  */
+ #cmakedefine HAVE_ERR_H
+-#if defined(HAVE_ERR_H)
+-#    include <err.h>
+-#endif
+ 
+ #cmakedefine HAVE_ERR
+ #if !defined(HAVE_ERR)
+--- tvips/cphdr.c.orig
++++ tvips/cphdr.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ 
+ #include "frame.h"
+ 
+--- tvips/dan_test.c.orig
++++ tvips/dan_test.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <math.h>
+ #include <string.h>
+ 
+--- tvips/dumpframe.c.orig
++++ tvips/dumpframe.c
+@@ -44,7 +44,9 @@ SINGLE TVIPS file
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <errno.h> // XXX Late addition
+ #include <float.h> // XXX Late addition
+ #include <limits.h> // XXX Late addition
+--- tvips/fixpoint.c.orig
++++ tvips/fixpoint.c
+@@ -25,7 +25,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <math.h>
+ #include <unistd.h>
+ 
+--- tvips/img2img.c.orig
++++ tvips/img2img.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ 
+ #include "frame.h"
+ 
+--- tvips/img2px.c.orig
++++ tvips/img2px.c
+@@ -25,7 +25,9 @@
+ #include <stdbool.h>
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <errno.h>
+ #include <getopt.h>
+ #include <math.h>
+--- tvips/img2splot.c.orig
++++ tvips/img2splot.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <errno.h>
+ #include <limits.h>
+ 
+--- tvips/imgcorr.c.orig
++++ tvips/imgcorr.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <math.h>
+ #include <string.h>
+ 
+--- tvips/imgrevert.c.orig
++++ tvips/imgrevert.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <errno.h>
+ #include <string.h>
+ 
+--- tvips/rawdump.c.orig
++++ tvips/rawdump.c
+@@ -18,11 +18,17 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#ifdef HAVE_CONFIG_H
++#    include "config.h"
++#endif
++
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ #include <math.h>
+ 
+ 
+--- tvips/tiff2raw.c.orig
++++ tvips/tiff2raw.c
+@@ -24,7 +24,9 @@
+ 
+ #include <stdlib.h>
+ 
+-#include <err.h>
++#ifdef HAVE_ERR_H
++#    include <err.h>
++#endif
+ 
+ #include "frame.h"
+ #include "tvips.h"

@@ -4,13 +4,12 @@
     -o "t_###.img" -z EST5EDT         \
     "${SRC_DIR}/test/movie23_000.tif"
 cat << EOF | md5sum -c -
-0f45b68aec48c76afb8c7ccbbadf9eb4  t_000.img
+7ff4a6be071ccd7844207d58f0838926  t_001.img
 EOF
 
 "${PREFIX}/bin/tvips2smv"               \
     -o "t_###.img" -z EST5EDT           \
     "${SRC_DIR}/test/movie23_000.tvips"
 cat << EOF | md5sum -c -
-0f45b68aec48c76afb8c7ccbbadf9eb4  t_000.img
-32c23a4806552ce487569a17ecb60e59  t_001.img
+5b8e05d443eea3ebc0a6c62965137d30  t_001.img
 EOF
