@@ -1,6 +1,6 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.0.2-dev.0" %}
+{% set version = "0.1.0-dev.0" %}
 
 package:
   name: {{ tarname }}
@@ -8,20 +8,22 @@ package:
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: 5a41f81690b472f1fdc6d901e9341c8b78e5bf6e5771ffd4a0809e2f6158f9f5
+  sha256: 3594e63ec86d60113b80aaf2353c6bc7e951738941bd2cdaab60ac7a7affb024
   patches:
     - 01-setenv.patch
     - 02-version.patch
     - 03-install.patch
-    - 04-warnings.patch
+    - 04-test.patch
+    - 05-disable-libR.patch
+    - 06-err_h.patch
+    - 07-windows.patch
+    - 08-cmake.patch
+    - 09-warnings.patch
 
 build:
   ignore_run_exports_from:
     - {{ compiler('cxx') }}
   number: 0
-  script_env:
-    - USER      # [unix]
-    - USERNAME  # [win]
 
 requirements:
   build:

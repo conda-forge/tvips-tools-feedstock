@@ -1,0 +1,31 @@
+--- tvips/fixpoint.c.orig
++++ tvips/fixpoint.c
+@@ -637,7 +637,7 @@ main(int argc, char *argv[])
+     int verbose;
+ 
+ 
+-    srandom(time(NULL));
++    srand(time(NULL));
+ 
+     verbose = 1;
+ 
+--- tvips/img2px.c.orig
++++ tvips/img2px.c
+@@ -263,7 +263,7 @@ _index_list_permute(struct _index_list *il)
+     long int j;
+ 
+     for (i = il->nmemb; i-- > 1; ) {
+-        j = lrint(1.0 * i * random() / RAND_MAX);
++        j = lrint(1.0 * i * rand() / RAND_MAX);
+ 
+         if (j < 0)
+             fprintf(stderr, "SHUFFLE UNDERFLOW %ld %zd\n", j, i);
+@@ -295,7 +295,7 @@ _index_list_permute(struct _index_list *il)
+     for (i = 0; i < il->nmemb; i++) {
+ //        fprintf(stderr, "  iteration %zd\n", i);
+ 
+-        l = lrint(1.0 * (il->nmemb - i - 1) * random() / RAND_MAX);
++        l = lrint(1.0 * (il->nmemb - i - 1) * rand() / RAND_MAX);
+         if (l < 0)
+             l = 0; // XXX WARN HERE?
+         else if (l + i + 1 > il->nmemb)

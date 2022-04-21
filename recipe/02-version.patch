@@ -7,7 +7,7 @@ named VERSION, because that will clash with a system-provided header
 on case-insensitive macOS filesystems.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -116,14 +116,14 @@ CHECK_FUNCTION_EXISTS(getprogname HAVE_GETPROGNAME)
+@@ -120,14 +120,14 @@ CHECK_FUNCTION_EXISTS(getprogname HAVE_GETPROGNAME)
  CHECK_FUNCTION_EXISTS(setprogname HAVE_SETPROGNAME)
  
  
@@ -26,7 +26,7 @@ on case-insensitive macOS filesystems.
    VERBATIM)
  
  
-@@ -286,9 +286,9 @@ install(
+@@ -370,9 +370,9 @@ install(
  # the source directory.  In order to include the pre-built
  # documentation as well as the version information file, the dist
  # target must depend on the documentation files as well as
@@ -39,7 +39,7 @@ on case-insensitive macOS filesystems.
  #
  # Determine the version, patch level, and the source status as in
  # config.cmake.  ${version_branch}, which is the last component of the
-@@ -310,17 +310,17 @@ add_custom_target(dist
+@@ -394,17 +394,17 @@ add_custom_target(dist
      "${PROJECT_SOURCE_DIR}/tiff2smv.1"
      "${PROJECT_SOURCE_DIR}/tiff2smv.pdf"
      "${PROJECT_SOURCE_DIR}/tvips2smv.1"
@@ -60,7 +60,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_MAJOR
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -328,7 +328,7 @@ execute_process(
+@@ -412,7 +412,7 @@ execute_process(
  execute_process(
    COMMAND ${CMAKE_COMMAND}
      "-DOUTPUT=minor"
@@ -69,7 +69,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_MINOR
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -336,7 +336,7 @@ execute_process(
+@@ -420,7 +420,7 @@ execute_process(
  execute_process(
    COMMAND ${CMAKE_COMMAND}
      "-DOUTPUT=patch"
@@ -78,7 +78,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE CPACK_PACKAGE_VERSION_PATCH
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -344,7 +344,7 @@ execute_process(
+@@ -428,7 +428,7 @@ execute_process(
  execute_process(
    COMMAND ${CMAKE_COMMAND}
      "-DOUTPUT=tweak"
@@ -87,7 +87,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE version_tweak
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -352,7 +352,7 @@ execute_process(
+@@ -436,7 +436,7 @@ execute_process(
  execute_process(
    COMMAND ${CMAKE_COMMAND}
      "-DOUTPUT=branch"
@@ -96,7 +96,7 @@ on case-insensitive macOS filesystems.
      -P "${PROJECT_SOURCE_DIR}/version.cmake"
    OUTPUT_VARIABLE version_branch
    OUTPUT_STRIP_TRAILING_WHITESPACE)
-@@ -363,7 +363,7 @@ string(REGEX REPLACE "[^-@0-9a-zA-Z]" "_" version_branch "${version_branch}")
+@@ -447,7 +447,7 @@ string(REGEX REPLACE "[^-@0-9a-zA-Z]" "_" version_branch "${version_branch}")
  execute_process(
    COMMAND ${CMAKE_COMMAND}
      "-DOUTPUT=status"
@@ -188,7 +188,7 @@ on case-insensitive macOS filesystems.
    OUTPUT_STRIP_TRAILING_WHITESPACE)
 --- tvips/config.h.in.orig
 +++ tvips/config.h.in
-@@ -37,6 +37,10 @@
+@@ -29,6 +29,10 @@
   */
  #define PACKAGE_VERSION_BRANCH "${PACKAGE_VERSION_BRANCH}"
  
@@ -199,7 +199,7 @@ on case-insensitive macOS filesystems.
  /* The integer major version of the package
   */
  #define PACKAGE_VERSION_MAJOR ${PACKAGE_VERSION_MAJOR}
-@@ -49,6 +53,10 @@
+@@ -41,6 +45,10 @@
   */
  #define PACKAGE_VERSION_PATCH ${PACKAGE_VERSION_PATCH}
  
@@ -212,7 +212,7 @@ on case-insensitive macOS filesystems.
  #define PACKAGE_VERSION_TWEAK ${PACKAGE_VERSION_TWEAK}
 --- tvips/util.c.orig
 +++ tvips/util.c
-@@ -151,20 +151,26 @@ version()
+@@ -228,19 +228,25 @@ version()
                  PACKAGE_NAME);
  
      } else {
@@ -234,15 +234,14 @@ on case-insensitive macOS filesystems.
          if (PACKAGE_VERSION_TWEAK > 0 ||
 -            strcasecmp(PACKAGE_VERSION_BRANCH, "master") != 0 ||
              strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
- 
-             fprintf(stdout,  "    %s%s",
+             fprintf(stdout,  "    %s%s%s\n",
                      PACKAGE_VERSION_BRANCH,
 -                    strlen(PACKAGE_VERSION_COMMIT) > 0
 +                    strpbrk(PACKAGE_VERSION_BRANCH, " \t") == NULL
 +                    && strlen(PACKAGE_VERSION_COMMIT) > 0
                      ? "." PACKAGE_VERSION_COMMIT
-                     : "");
-             if (strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0) {
+                     : "",
+                     strcasecmp(PACKAGE_VERSION_STATUS, "dirty") == 0
 --- tvips/version.cmake.orig
 +++ tvips/version.cmake
 @@ -28,7 +28,7 @@ else()
