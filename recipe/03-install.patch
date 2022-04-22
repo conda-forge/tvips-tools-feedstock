@@ -1,6 +1,6 @@
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -304,13 +304,13 @@ install(
+@@ -340,13 +340,13 @@ install(
    FILES
      "${PROJECT_SOURCE_DIR}/tiff2smv.1"
      "${PROJECT_SOURCE_DIR}/tvips2smv.1"
