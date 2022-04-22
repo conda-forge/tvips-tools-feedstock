@@ -36,9 +36,9 @@ requirements:
     - cmake        >=3.11,<4
     - coreutils                 # [unix]
     - flex         >=2.5.34,<3  # [unix]
+    - libxslt      >=0.13.0
     - m2-coreutils              # [win]
     - m2-flex      >=2.5.34,<3  # [win]
-    - libxslt      >=0.13.0
     - make                      # [unix]
   host:
     - libiconv      # [win]
