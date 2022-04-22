@@ -1,0 +1,10 @@
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -315,6 +315,7 @@ target_link_libraries(imgrevert Iconv::Iconv)
+ add_executable(rawdump
+   "compat.c"
+   "rawdump.c")
++add_dependencies(rawdump _update_config_h)
+ target_link_libraries(rawdump m)
+ 
+ add_executable(tiff2raw
