@@ -24,12 +24,17 @@ build:
   ignore_run_exports_from:
     - {{ compiler('cxx') }}
   number: 0
+  script_env:
+    - USER      # [unix]
+    - USERNAME  # [win]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake   >=3.2,<4
+    - coreutils         # [unix]
+    - m2-coreutils      # [win]
     - libxslt >=0.13.0
     - make              # [unix]
   host:

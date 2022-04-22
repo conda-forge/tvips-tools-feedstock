@@ -12,3 +12,7 @@ cmake ${CMAKE_ARGS}                              \
 cmake --build . --parallel "${CPU_COUNT}"
 cmake --build . --parallel "${CPU_COUNT}" --target man
 cmake --install . --prefix "${PREFIX}"
+
+install -D                               \
+    "${SRC_DIR}/README"                  \
+    "${PREFIX}/share/${PKG_NAME}/README"

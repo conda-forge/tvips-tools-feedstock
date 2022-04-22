@@ -19,3 +19,8 @@ if errorlevel 1 exit /b 1
 
 cmake --install . --prefix "%PREFIX%"
 if errorlevel 1 exit /b 1
+
+install -D                             ^
+    "%SRC_DIR%\README"                 ^
+    "%PREFIX%\share\%PKG_NAME%\README"
+if errorlevel 1 exit /b 1

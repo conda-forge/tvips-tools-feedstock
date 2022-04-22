@@ -1,0 +1,103 @@
+--- tvips/tiff.c.orig
++++ tvips/tiff.c
+@@ -239,15 +239,15 @@ _tiff_write(thandle_t handle, tdata_t ptr, tsize_t size)
+  *            otherwise
+  */
+ static uint16_t *
+-_tiff_cpy(uint32 w,
+-          uint32 l,
+-          uint16 bps,
++_tiff_cpy(uint32_t w,
++          uint32_t l,
++          uint16_t bps,
+           uint16_t *dst,
+-          int32 ldd,
++          int32_t ldd,
+           const void *src,
+-          uint32 lds)
++          uint32_t lds)
+ {
+-    uint32 i, j;
++    uint32_t i, j;
+ 
+     switch (bps) {
+     case 8:
+@@ -256,7 +256,7 @@ _tiff_cpy(uint32 w,
+          */
+         for (i = 0; i < l; i++) {
+             for (j = 0; j < w; j++)
+-                dst[ldd * i + j] = ((const uint8 *)src)[lds * i + j];
++                dst[ldd * i + j] = ((const uint8_t *)src)[lds * i + j];
+         }
+         return (dst);
+ 
+@@ -266,7 +266,7 @@ _tiff_cpy(uint32 w,
+          */
+         for (i = 0; i < l; i++) {
+             for (j = 0; j < w; j++)
+-                dst[ldd * i + j] = ((const uint16 *)src)[lds * i + j];
++                dst[ldd * i + j] = ((const uint16_t *)src)[lds * i + j];
+         }
+         return (dst);
+     }
+@@ -297,13 +297,13 @@ _tiff_cpy(uint32 w,
+  * @return         Decoded raster, pass to free(3)
+  */
+ static uint16_t *
+-_tiff_raster(TIFF *tif, uint32 *w, uint32 *l, uint16 *bps)
++_tiff_raster(TIFF *tif, uint32_t *w, uint32_t *l, uint16_t *bps)
+ {
+     uint16_t *raster;
+     tdata_t src_data;
+     tsize_t src_size;
+-    uint32 d, i, j, tl, tw;
+-    uint16 cfg, spp, sf, pm;
++    uint32_t d, i, j, tl, tw;
++    uint16_t cfg, spp, sf, pm;
+ 
+     raster = NULL;
+     src_data = NULL;
+@@ -610,7 +610,7 @@ tvips_ctime_tiff(
+     struct tm tm;
+     const char *zone_old;
+     time_t clock;
+-    uint32 tem_date, tem_time;
++    uint32_t tem_date, tem_time;
+     int ret;
+ 
+ 
+@@ -624,6 +624,7 @@ tvips_ctime_tiff(
+      * where the image was written.  According to Peter Sparlinek, the
+      * timestamp is nowadays always recorded in localtime.
+      */
++    zone_old = NULL;
+     if (zone != NULL && zone[0] != '\0') {
+         zone_old = getenv("TZ");
+         if (setenv("TZ", zone, 1) != 0)
+@@ -706,9 +707,9 @@ tvips_ctime_tiff(
+ int
+ tvips_read_header(struct tvips_tiff *handle)
+ {
+-    uint32 *offset;
++    uint32_t *offset;
+     uint32_t version;
+-    uint16 count;
++    uint16_t count;
+ 
+ 
+     /* Read the TemData structure using the new tag, which is provided
+@@ -750,11 +751,11 @@ tvips_read_header(struct tvips_tiff *handle)
+ struct frame *
+ tvips_read_tiff(struct tvips_tiff *handle, const char *zone)
+ {
+-    uint32 binning[2];
++    uint32_t binning[2];
+     TIFFErrorHandler error_old, warning_old;
+     struct frame *frame;
+-    uint32 length, width;
+-    uint16 bps;
++    uint32_t length, width;
++    uint16_t bps;
+ 
+ 
+     /* Disable errors and warnings, as the former are communicated
