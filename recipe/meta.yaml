@@ -1,6 +1,6 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.0.1" %}
+{% set version = "0.0.2" %}
 
 package:
   name: {{ tarname }}
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: bed23dee3f8fed948b528fdc36b8083103af5d0941620c74ba262861412cb897
+  sha256: f7483e0bd79c269af1e603c660b6d27123f995f1fad25364a789afbcbb971cc0
   patches:
     - 01-setenv.patch
     - 02-version.patch
@@ -19,14 +19,19 @@ build:
   ignore_run_exports_from:
     - {{ compiler('cxx') }}
   number: 0
+  script_env:
+    - USER      # [unix]
+    - USERNAME  # [win]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - cmake   >=2.8.5,<4
+    - cmake   >=3.2,<4
+    - coreutils         # [unix]
+    - m2-coreutils      # [win]
     - libxslt >=0.13.0
-    - make                # [unix]
+    - make              # [unix]
   host:
     - libtiff 4.*
   run:
