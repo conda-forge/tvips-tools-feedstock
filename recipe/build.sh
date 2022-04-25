@@ -16,6 +16,22 @@ cmake --build . --parallel "${CPU_COUNT}"
 cmake --build . --parallel "${CPU_COUNT}" --target man
 cmake --install . --prefix "${PREFIX}"
 
+echo "dumpframe"
+test -n "${OSX_ARCH}" && otool -L dumpframe
+test -z "${OSX_ARCH}" && ldd dumpframe
+
+echo "tiff2smv"
+test -n "${OSX_ARCH}" && otool -L tiff2smv
+test -z "${OSX_ARCH}" && ldd tiff2smv
+
+echo "tvips2smv"
+test -n "${OSX_ARCH}" && otool -L tvips2smv
+test -z "${OSX_ARCH}" && ldd tvips2smv
+
+echo "idoc2smv"
+test -n "${OSX_ARCH}" && otool -L idoc2smv
+test -z "${OSX_ARCH}" && ldd idoc2smv
+
 install -D                               \
     "${SRC_DIR}/README"                  \
     "${PREFIX}/share/${PKG_NAME}/README"
