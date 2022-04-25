@@ -1,0 +1,164 @@
+FindIconv was introduced in CMake 3.11.  This fixes underlinking.
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -12,7 +12,7 @@
+ # was introduced in CMake 3.2.  XXX Including GNUInstallDirs
+ # (introduced in 2.8.5, see http://www.cmake.org/Bug/view.php?id=3976)
+ # may be a bit of a wart in a non-GNU package.
+-cmake_minimum_required(VERSION 3.2)
++cmake_minimum_required(VERSION 3.11)
+ project("TVIPS tools")
+ set(PACKAGE_BUGREPORT "microed@hhmi.org")
+ set(PACKAGE_URL "http://cryoem.janelia.org/pages/MicroED")
+@@ -63,6 +63,10 @@ endif()
+ mark_as_advanced(GSL_DIR)
+ 
+ 
++# Any POSIX-compliant version of iconv should be fine.
++find_package(Iconv REQUIRED)
++
++
+ # TIFFSwabFloat() was introduced in LibTIFF 4.0.0.
+ find_package(TIFF 4.0.0 REQUIRED)
+ 
+@@ -234,12 +238,13 @@ add_executable(cphdr
+   "cphdr.c"
+   "frame.c")
+ add_dependencies(cphdr _update_config_h)
++target_link_libraries(cphdr Iconv::Iconv)
+ 
+ add_executable(dan_test
+   "dan_test.c"
+   "frame.c")
+ add_dependencies(dan_test _update_config_h)
+-target_link_libraries(dan_test m)
++target_link_libraries(dan_test Iconv::Iconv m)
+ endif()
+ 
+ add_executable(dumpframe
+@@ -252,7 +257,7 @@ add_executable(dumpframe
+   "tvips.c"
+   "util.c")
+ add_dependencies(dumpframe _update_config_h)
+-target_link_libraries(dumpframe ${TIFF_LIBRARIES})
++target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
+ 
+ if(BUILD_JIFFIES)
+ add_executable(fixpoint
+@@ -273,13 +278,14 @@ add_executable(idoc2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(idoc2smv _update_config_h)
+-target_link_libraries(idoc2smv ${TIFF_LIBRARIES})
++target_link_libraries(idoc2smv Iconv::Iconv ${TIFF_LIBRARIES})
+ 
+ if(BUILD_JIFFIES)
+ add_executable(img2img
+   "frame.c"
+   "img2img.c")
+ add_dependencies(img2img _update_config_h)
++target_link_libraries(img2img Iconv::Iconv)
+ 
+ add_executable(img2px
+   "compat.c"
+@@ -289,18 +295,19 @@ add_executable(img2px
+   "tvips.c"
+   "util.c")
+ add_dependencies(img2px _update_config_h)
+-target_link_libraries(img2px ${GSL_LIBRARIES} "R")
++target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} "R")
+ 
+ add_executable(img2splot
+   "frame.c"
+   "img2splot.c")
+ add_dependencies(img2splot _update_config_h)
++target_link_libraries(img2splot Iconv::Iconv)
+ 
+ add_executable(imgcorr
+   "imgcorr.c"
+   "frame.c")
+ add_dependencies(imgcorr _update_config_h)
+-target_link_libraries(imgcorr m)
++target_link_libraries(imgcorr Iconv::Iconv m)
+ 
+ add_executable(imgrevert
+   "compat.c"
+@@ -308,6 +315,7 @@ add_executable(imgrevert
+   "imgrevert.c"
+   "util.c")
+ add_dependencies(imgrevert _update_config_h)
++target_link_libraries(imgrevert Iconv::Iconv)
+ 
+ add_executable(rawdump
+   "rawdump.c")
+@@ -322,7 +330,7 @@ add_executable(tiff2raw
+   "tvips.c"
+   "util.c")
+ add_dependencies(tiff2raw _update_config_h)
+-target_link_libraries(tiff2raw ${TIFF_LIBRARIES})
++target_link_libraries(tiff2raw Iconv::Iconv ${TIFF_LIBRARIES})
+ endif()
+ 
+ add_executable(tiff2smv
+@@ -334,7 +342,7 @@ add_executable(tiff2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(tiff2smv _update_config_h)
+-target_link_libraries(tiff2smv ${TIFF_LIBRARIES})
++target_link_libraries(tiff2smv Iconv::Iconv ${TIFF_LIBRARIES})
+ 
+ add_executable(tvips2smv
+   "compat.c"
+@@ -344,6 +352,7 @@ add_executable(tvips2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(tvips2smv _update_config_h)
++target_link_libraries(tvips2smv Iconv::Iconv)
+ 
+ 
+ # Commands for generating the documentation in the binary directory,
+--- tvips/config.h.in.orig
++++ tvips/config.h.in
+@@ -162,6 +162,20 @@
+      realpath(const char *pathname, char *resolved);
+ #endif
+ 
++/* Unambiguous, absolute path to the iconv header, to be used as a
++ * computed include.  The search paths may contain several headers
++ * from different iconv implementations and there is no guarantee that
++ * the header found first corresponds to the desired implementation;
++ * it may not even be compatible with Iconv_LIBRARY.
++ */
++#cmakedefine Iconv_IS_BUILT_IN
++#ifdef Iconv_IS_BUILT_IN
++#    define TVIPS_TOOLS_ICONV_H <iconv.h>
++#else
++#    define TVIPS_TOOLS_ICONV_H "@Iconv_INCLUDE_DIR@/iconv.h"
++#endif
++
++
+ /* Declare the compatibility implementations of getprogname(3) and
+  * setprogname(3).
+  */
+--- tvips/frame.c.orig
++++ tvips/frame.c
+@@ -30,7 +30,7 @@
+ #include <ctype.h>
+ #include <errno.h>
+ #include <float.h>
+-#include <iconv.h>
++#include TVIPS_TOOLS_ICONV_H
+ #include <math.h>
+ #include <string.h>
+ #include <strings.h>
+--- tvips/tiff.c.orig
++++ tvips/tiff.c
+@@ -34,7 +34,7 @@
+ #include <stdlib.h>
+ 
+ #include <errno.h>
+-#include <iconv.h>
++#include TVIPS_TOOLS_ICONV_H
+ #include <limits.h>
+ #include <math.h>
+ #include <string.h>

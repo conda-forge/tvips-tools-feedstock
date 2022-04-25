@@ -1,6 +1,6 @@
 @echo off
 
-echo v0.1.0-dev.0-0-g20b9ca1-experimental/jiffies ^
+echo v0.1.0-dev.1-0-g00fc275-experimental/jiffies ^
     > "%SRC_DIR%\TVIPS-TOOLS-VERSION-FILE"
 del "%SRC_DIR%\VERSION"
 
@@ -18,4 +18,9 @@ cmake --build . --parallel "%CPU_COUNT%" --target man
 if errorlevel 1 exit /b 1
 
 cmake --install . --prefix "%PREFIX%"
+if errorlevel 1 exit /b 1
+
+install -D                             ^
+    "%SRC_DIR%\README"                 ^
+    "%PREFIX%\share\%PKG_NAME%\README"
 if errorlevel 1 exit /b 1

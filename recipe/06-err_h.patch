@@ -2,7 +2,7 @@ Conditionally include err.h on platforms that have it.  compat.c
 provides fallback implementations for the necessary functions.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -84,6 +84,10 @@ CHECK_C_SOURCE_COMPILES("
+@@ -103,6 +103,10 @@ CHECK_C_SOURCE_COMPILES("
    BSWAP_STDLIB_H)
  
  
@@ -13,7 +13,7 @@ provides fallback implementations for the necessary functions.
  # Check whether certain error numbers are defined by <errno.h>.
  CHECK_SYMBOL_EXISTS(EMSGSIZE errno.h HAVE_EMSGSIZE)
  CHECK_SYMBOL_EXISTS(ENOMSG errno.h HAVE_ENOMSG)
-@@ -160,11 +164,13 @@ set(BUILD_JIFFIES OFF CACHE BOOL
+@@ -220,12 +224,14 @@ set(BUILD_JIFFIES OFF CACHE BOOL
    "Build MicroED developer jiffies, not for distribution")
  if(BUILD_JIFFIES)
  add_executable(cphdr
@@ -21,13 +21,14 @@ provides fallback implementations for the necessary functions.
    "cphdr.c"
    "frame.c")
  add_dependencies(cphdr _update_config_h)
+ target_link_libraries(cphdr Iconv::Iconv)
  
  add_executable(dan_test
 +  "compat.c"
    "dan_test.c"
    "frame.c")
  add_dependencies(dan_test _update_config_h)
-@@ -184,12 +190,14 @@ target_link_libraries(dumpframe ${TIFF_LIBRARIES})
+@@ -246,6 +252,7 @@ target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
  
  if(BUILD_JIFFIES)
  add_executable(fixpoint
@@ -35,29 +36,31 @@ provides fallback implementations for the necessary functions.
    "delta_t.cpp"
    "fixpoint.c")
  add_dependencies(fixpoint _update_config_h)
- target_link_libraries(fixpoint fftw3)
+@@ -267,6 +274,7 @@ target_link_libraries(idoc2smv Iconv::Iconv ${TIFF_LIBRARIES})
  
+ if(BUILD_JIFFIES)
  add_executable(img2img
 +  "compat.c"
    "frame.c"
    "img2img.c")
  add_dependencies(img2img _update_config_h)
-@@ -204,11 +212,13 @@ add_executable(img2px
- add_dependencies(img2px _update_config_h)
+@@ -283,12 +291,14 @@ add_dependencies(img2px _update_config_h)
+ target_link_libraries(img2px Iconv::Iconv)
  
  add_executable(img2splot
 +  "compat.c"
    "frame.c"
    "img2splot.c")
  add_dependencies(img2splot _update_config_h)
+ target_link_libraries(img2splot Iconv::Iconv)
  
  add_executable(imgcorr
 +  "compat.c"
    "imgcorr.c"
    "frame.c")
  add_dependencies(imgcorr _update_config_h)
-@@ -222,6 +232,7 @@ add_executable(imgrevert
- add_dependencies(imgrevert _update_config_h)
+@@ -303,6 +313,7 @@ add_dependencies(imgrevert _update_config_h)
+ target_link_libraries(imgrevert Iconv::Iconv)
  
  add_executable(rawdump
 +  "compat.c"
@@ -66,7 +69,7 @@ provides fallback implementations for the necessary functions.
  
 --- tvips/config.h.in.orig
 +++ tvips/config.h.in
-@@ -130,9 +130,6 @@
+@@ -138,9 +138,6 @@
   * of the non-standard err(3) and warnx(3) functions.
   */
  #cmakedefine HAVE_ERR_H
@@ -143,7 +146,7 @@ provides fallback implementations for the necessary functions.
  
 --- tvips/img2px.c.orig
 +++ tvips/img2px.c
-@@ -25,7 +25,9 @@
+@@ -27,7 +27,9 @@
  #include <stdbool.h>
  #include <stdlib.h>
  

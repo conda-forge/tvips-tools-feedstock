@@ -1,3 +1,142 @@
+Fallback implementations for Windows.  These will require config.h to
+be included.
+--- tvips/adoc.l.orig
++++ tvips/adoc.l
+@@ -45,7 +45,7 @@
+  */
+ union yylval
+ {
+-    struct timespec tv;
++    struct tm tm;
+     char *str;
+     long int integer;
+     double real;
+@@ -63,7 +63,7 @@ enum tokens
+     SECTION_START,
+     SECTION_STOP,
+     STRING,
+-    TIMESPEC
++    TIME
+ };
+ 
+ %}
+@@ -215,25 +215,78 @@ enum tokens
+ }
+ 
+ 
+-  /* Scan a timestamp on the form "%d-%b-%y %H:%M:%S".  The %y
+-   * conversion is a tad finicky; see strptime(3) for details.  If the
+-   * conversion fails, yyextra->tv.tv_sec is set -1.
+-   *
+-   * XXX This may eventually need a custom implementation as in
+-   * frame.c.
++  /* Scan a timestamp on the form "%d-%b-%y  %H:%M:%S" in the current
++   * time zone.  If the conversion fails, yyextra->tm.tm_wday is set
++   * to -1.  See also _strptime() in frame.c.
+    */
+ <S_VALUE>[[:digit:]]{2}-[[:alpha:]]{3}-[[:digit:]]{2}"  "[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2} {
+-    struct tm tm;
+-    char *c;
++    const char* C_mon[12] = {
++        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
++        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
++
++    /* A negative value for tm_isdst causes mktime(3) to attempt to
++     * divine whether summer time is in effect for the specified time.
++     */
++    yyextra->tm.tm_hour
++        = yyextra->tm.tm_isdst
++        = yyextra->tm.tm_mday
++        = yyextra->tm.tm_min
++        = yyextra->tm.tm_mon
++        = yyextra->tm.tm_sec
++        = yyextra->tm.tm_wday
++        = yyextra->tm.tm_yday
++        = yyextra->tm.tm_year
++        = -1;
++
++
++    /* Parse day of month, the month, and the base-1900 year.
++     * SerialEM uses a hardcoded, locale-independent list of
++     * three-letter month names, which is reproduced in C_mon.  Years
++     * in the range 69-99 refer to the twentieth century (1969 to 1999
++     * inclusive); years in the range 00-68 refer to years in the
++     * twenty-first century (2000-2068 inclusive).
++     */
++    yyextra->tm.tm_mday = strtol(yytext, NULL, 10);
++    if (yyextra->tm.tm_mday < 1 || yyextra->tm.tm_mday > 31)
++        return (TIME);
++
++    for (yyextra->tm.tm_mon = 0; yyextra->tm.tm_mon < 12; yyextra->tm.tm_mon++) {
++        if (strncasecmp(yytext + 3, C_mon[yyextra->tm.tm_mon], 3) == 0)
++            break;
++    }
++    if (yyextra->tm.tm_mon == 12)
++        return (TIME);
+ 
+-    c = strptime(yytext, "%d-%b-%y  %H:%M:%S", &tm);
+-    if (c != NULL && c[0] == '\0')
+-        yyextra->tv.tv_sec = mktime(&tm);
+-    else
+-        yyextra->tv.tv_sec = -1;
+-    yyextra->tv.tv_nsec = 0;
++    yyextra->tm.tm_year = strtol(yytext + 7, NULL, 10);
++    if (yyextra->tm.tm_year < 0 || yyextra->tm.tm_year > 99)
++        return (TIME);
++    if(yyextra->tm.tm_year <= 68)
++        yyextra->tm.tm_year += 100;
+ 
+-    return (TIMESPEC);
++
++    /* Parse the hour, the minute, and the seconds in 24-hour clock
++     * format.  Due to leap seconds, there may be 61 seconds to a
++     * minute.
++     */
++    yyextra->tm.tm_hour = strtol(yytext + 11, NULL, 10);
++    if (yyextra->tm.tm_hour < 0 || yyextra->tm.tm_hour > 23)
++        return (TIME);
++
++    yyextra->tm.tm_min = strtol(yytext + 14, NULL, 10);
++    if (yyextra->tm.tm_min < 0 || yyextra->tm.tm_min > 59)
++        return (TIME);
++
++    yyextra->tm.tm_sec = strtol(yytext + 17, NULL, 10);
++    if (yyextra->tm.tm_sec < 0 || yyextra->tm.tm_sec > 60)
++        return (TIME);
++
++
++    /* All fields required by mktime(3) are now assigned.  The tm_wday
++     * and tm_yday components of the structure are ignored by
++     * mktime(3).
++     */
++    yyextra->tm.tm_wday = yyextra->tm.tm_yday = 0;
++    return (TIME);
+ }
+ 
+ 
+@@ -299,15 +352,18 @@ _scan_values(yyscan_t scanner, union yylval *yylval, struct metadata_item *item)
+                 return (-1);
+             break;
+ 
+-        case TIMESPEC:
++        case TIME:
+             /* XXX This is probably dependent on the time zone, but
+              * does it depend on the locale as well?
+              */
+-            //printf("  Scanned TIMESPEC value\n");
+-            if (yylval->tv.tv_sec == -1)
++            //printf("  Scanned TIME value\n");
++            if (yylval->tm.tm_wday == -1)
++                return (-1);
++            variant.value.tv.tv_sec = mktime(&yylval->tm);
++            if (variant.value.tv.tv_sec == -1)
+                 return (-1);
++            variant.value.tv.tv_nsec = 0;
+             variant.type = metadata_type_tv;
+-            variant.value.tv = yylval->tv;
+             break;
+ 
+         default:
 --- tvips/fixpoint.c.orig
 +++ tvips/fixpoint.c
 @@ -637,7 +637,7 @@ main(int argc, char *argv[])
@@ -11,7 +150,7 @@
  
 --- tvips/img2px.c.orig
 +++ tvips/img2px.c
-@@ -263,7 +263,7 @@ _index_list_permute(struct _index_list *il)
+@@ -268,7 +268,7 @@ _index_list_permute(struct _index_list *il)
      long int j;
  
      for (i = il->nmemb; i-- > 1; ) {
@@ -20,7 +159,7 @@
  
          if (j < 0)
              fprintf(stderr, "SHUFFLE UNDERFLOW %ld %zd\n", j, i);
-@@ -295,7 +295,7 @@ _index_list_permute(struct _index_list *il)
+@@ -300,7 +300,7 @@ _index_list_permute(struct _index_list *il)
      for (i = 0; i < il->nmemb; i++) {
  //        fprintf(stderr, "  iteration %zd\n", i);
  
@@ -29,3 +168,72 @@
          if (l < 0)
              l = 0; // XXX WARN HERE?
          else if (l + i + 1 > il->nmemb)
+--- tvips/metadata.c.orig
++++ tvips/metadata.c
+@@ -18,6 +18,9 @@
+  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#ifdef HAVE_CONFIG_H
++#    include "config.h"
++#endif
+ 
+ #include <stdio.h>
+ 
+--- tvips/tiff.c.orig
++++ tvips/tiff.c
+@@ -668,6 +668,44 @@ _mktimez(struct tm *tm, const char *zone)
+ }
+ 
+ 
++/* The _strptime() function parses the string @p buf using the format
++ * "%Y:%m:%d %H:%M:%S" and fills the matching data into the structure
++ * @p tm.  _strptime() should assign all fields required by mktime(3).
++ * The function returns 0 on success and non-zero otherwise.
++ */
++static int
++_strptime(const char *buf, struct tm *tm)
++{
++    int i;
++
++
++    /* Skip leading white space, parse day of week.  Parse base-1900
++     * year, month of year, day of month, hours, minutes, and seconds.
++     * Consume any trailing white space.
++     */
++    while (isspace(*buf))
++        buf++;
++    if (sscanf(buf, "%d:%d:%d %d:%d:%d %n",
++               &tm->tm_year, &tm->tm_mon, &tm->tm_mday,
++               &tm->tm_hour, &tm->tm_min, &tm->tm_sec,
++               &i) != 6 || buf[i] != '\0') {
++        return (-1);
++    }
++
++    tm->tm_mon -= 1;
++    tm->tm_year -= 1900;
++    if (tm->tm_mon < 0 || tm->tm_mon > 11 ||
++        tm->tm_mday < 1 || tm->tm_mday > 31 ||
++        tm->tm_hour < 0 || tm->tm_hour > 23 ||
++        tm->tm_min < 0 || tm->tm_min > 59 ||
++        tm->tm_sec < 0 || tm->tm_sec > 60) {
++        return (-1);
++    }
++
++    return (0);
++}
++
++
+ int
+ tvips_ctime_tiff(
+     struct tvips_tiff *handle, const char *zone, struct timespec *tv)
+@@ -693,8 +731,7 @@ tvips_ctime_tiff(
+             return (-1);
+         }
+ 
+-        tiff_datetime = strptime(tiff_datetime, "%Y:%m:%d %H:%M:%S", &tm);
+-        if (tiff_datetime == NULL || tiff_datetime[0] != '\0')
++        if (_strptime(tiff_datetime, &tm) != 0)
+             return (-1);
+ 
+         tv->tv_sec = _mktimez(&tm, zone);

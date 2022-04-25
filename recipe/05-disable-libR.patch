@@ -2,8 +2,8 @@ libR and GSL are not actually used, but img2px should not be
 distributed because it includes GPLd code.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -36,18 +36,6 @@ include(GNUInstallDirs)
- include(TestBigEndian)
+@@ -51,18 +51,6 @@ include(TestBigEndian)
+ find_package(FLEX 2.5.34 REQUIRED)
  
  
 -# XXX What version do we really need?  From
@@ -18,13 +18,13 @@ distributed because it includes GPLd code.
 -mark_as_advanced(GSL_DIR)
 -
 -
- # TIFFSwabFloat() was introduced in LibTIFF 4.0.0.
- find_package(TIFF 4.0.0 REQUIRED)
+ # Any POSIX-compliant version of iconv should be fine.
+ find_package(Iconv REQUIRED)
  
-@@ -141,10 +129,7 @@ configure_file(
-   @ONLY)
+@@ -197,10 +185,7 @@ configure_file(
  add_definitions(-DHAVE_CONFIG_H)
  include_directories(
+   "${PROJECT_SOURCE_DIR}"
 -  "${PROJECT_SOURCE_DIR}/R"
 -  "/usr/share/R/include"
    "${PROJECT_BINARY_DIR}"
@@ -32,11 +32,12 @@ distributed because it includes GPLd code.
    "${TIFF_INCLUDE_DIR}")
  
  
-@@ -217,7 +202,6 @@ add_executable(img2px
+@@ -295,7 +280,7 @@ add_executable(img2px
    "tvips.c"
    "util.c")
  add_dependencies(img2px _update_config_h)
--target_link_libraries(img2px ${GSL_LIBRARIES} "R")
+-target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} "R")
++target_link_libraries(img2px Iconv::Iconv)
  
  add_executable(img2splot
    "frame.c"
@@ -81,17 +82,17 @@ distributed because it includes GPLd code.
 -mark_as_advanced (GSL_LIB GSL_CBLAS_LIB GSL_INCLUDES)
 --- tvips/img2px.c.orig
 +++ tvips/img2px.c
-@@ -22,6 +22,7 @@
- #    include "config.h"
- #endif
+@@ -24,6 +24,7 @@
+ 
+ //#define DEBUG 1
  
 +#include <stdbool.h>
  #include <stdlib.h>
  
  #include <err.h>
-@@ -32,8 +33,7 @@
- #include <strings.h>
- #include <unistd.h> // XXX For sleep(3)
+@@ -37,8 +38,7 @@
+ #    include <unistd.h> // XXX For sleep(3)
+ #endif
  
 -#include <R_ext/Applic.h>
 -#include <R_ext/Memory.h>
@@ -99,7 +100,7 @@ distributed because it includes GPLd code.
  
  //#include <gsl/gsl_multimin.h>
  
-@@ -1011,7 +1011,7 @@ _vmmin(int n0, double *b, double *Fmin, /* optimfn fminfn, optimgr fmingr, */
+@@ -1012,7 +1012,7 @@ _vmmin(int n0, double *b, double *Fmin, /* optimfn fminfn, optimgr fmingr, */
  
          if (gradproj < 0.0) {   /* search direction is downhill */
              steplength = 1.0;

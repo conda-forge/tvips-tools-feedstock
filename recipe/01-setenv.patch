@@ -1,27 +1,27 @@
 Avoid setenv(3) with zero-length name parameter.
 --- tvips/dumpframe.c.orig
 +++ tvips/dumpframe.c
-@@ -2887,7 +2887,7 @@ main(int argc, char *argv[])
+@@ -2402,7 +2402,7 @@ main(int argc, char *argv[])
               * XXX This is essentially the tvips_ctime_tiff() function
               * from tiff.c with all the comments stripped.
               */
 -            if (zone != NULL) {
 +            if (zone != NULL && zone[0] != '\0') {
-                 zone_old = getenv("TZ");
+                 zone_save = getenv("TZ");
                  if (setenv("TZ", zone, 1) != 0) {
-                     metadata_free(dict);
-@@ -2983,7 +2983,7 @@ main(int argc, char *argv[])
+                     metadata_dict_free(dict);
+@@ -2510,7 +2510,7 @@ main(int argc, char *argv[])
                      break;
                  }
  
 -                if (zone != NULL) {
 +                if (zone != NULL && zone[0] != '\0') {
-                     if (zone_old != NULL)
-                         setenv("TZ", zone_old, 1);
+                     if (zone_save != NULL)
+                         setenv("TZ", zone_save, 1);
                      else
 --- tvips/frame.c.orig
 +++ tvips/frame.c
-@@ -397,7 +397,7 @@ frame_read(FILE *stream)
+@@ -518,7 +518,7 @@ frame_read(FILE *stream)
                  goto exit_error;
              }
  
@@ -30,32 +30,57 @@ Avoid setenv(3) with zero-length name parameter.
                  goto exit_error;
              tzset();
  
-@@ -596,7 +596,7 @@ exit_success:
+@@ -723,7 +723,7 @@ exit_success:
       * unsetenv(3) should not fail; if they do, they may prevent errno
       * from representing the true cause of any previous error.
       */
--    if (zone_old)
-+    if (zone_old != NULL && zone_old[0] != '\0')
-         setenv("TZ", zone_old, 1);
+-    if (zone_save)
++    if (zone_save != NULL && zone_save[0] != '\0')
+         setenv("TZ", zone_save, 1);
      else
          unsetenv("TZ");
 --- tvips/tiff.c.orig
 +++ tvips/tiff.c
-@@ -640,7 +640,7 @@ tvips_ctime_tiff(
-      * where the image was written.  According to Peter Sparlinek, the
-      * timestamp is nowadays always recorded in localtime.
-      */
--    if (zone != NULL) {
-+    if (zone != NULL && zone[0] != '\0') {
-         zone_old = getenv("TZ");
-         if (setenv("TZ", zone, 1) != 0)
-             return (-1);
-@@ -708,7 +708,7 @@ tvips_ctime_tiff(
+@@ -642,12 +642,13 @@ _mktimez(struct tm *tm, const char *zone)
+     time_t t;
+     int errno_save;
  
-     /* Reset the timezone if it was changed.
+-    if (zone != NULL) {
+-        zone_save = getenv("TZ");
+-        if (setenv("TZ", zone, 1) != 0)
+-            return (-1);
+-        tzset();
+-    }
++    if (zone == NULL || zone[0] == '\0')
++        return (mktime(tm));
++
++    zone_save = getenv("TZ");
++    if (setenv("TZ", zone, 1) != 0)
++        return (-1);
++    tzset();
+     t = mktime(tm);
+ 
+ 
+@@ -655,15 +656,13 @@ _mktimez(struct tm *tm, const char *zone)
+      * should not prevent errno from representing the true cause of
+      * any previous errors.
       */
 -    if (zone != NULL) {
-+    if (zone != NULL && zone[0] != '\0') {
-         if (zone_old != NULL)
-             setenv("TZ", zone_old, 1);
-         else
+-        errno_save = errno;
+-        if (zone_save != NULL)
+-            setenv("TZ", zone_save, 1);
+-        else
+-            unsetenv("TZ");
+-        tzset();
+-        errno = errno_save;
+-    }
++    errno_save = errno;
++    if (zone_save != NULL)
++        setenv("TZ", zone_save, 1);
++    else
++        unsetenv("TZ");
++    tzset();
++    errno = errno_save;
+ 
+     return (t);
+ }
