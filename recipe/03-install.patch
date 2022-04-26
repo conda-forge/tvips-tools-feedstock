@@ -1,68 +1,87 @@
 Do not build the jiffies by default, they are not intended for
-distribution.
+distribution.  img2px is a jiffy in this version.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
 @@ -227,6 +227,9 @@ add_definitions(-D_XOPEN_SOURCE=600)
- # The executables should generally depend on the _update_config_h
- # target.  XXX Oddly have to give libm for dan_test, imgcorr, and
+ # target.  Recompilation will only occur if version.h actually
+ # changes.  XXX Oddly have to give libm for dan_test, imgcorr, and
  # rawdump, but nothing else?
 +set(BUILD_JIFFIES OFF CACHE BOOL
 +  "Build MicroED developer jiffies, not for distribution")
 +if(BUILD_JIFFIES)
  add_executable(cphdr
+   "compat.c"
    "cphdr.c"
-   "frame.c")
-@@ -237,6 +240,7 @@ add_executable(dan_test
-   "frame.c")
- add_dependencies(dan_test _update_config_h)
+@@ -242,6 +245,7 @@ add_executable(dan_test
+   "util.c")
+ add_dependencies(dan_test _update_version_h)
  target_link_libraries(dan_test m)
 +endif()
  
  add_executable(dumpframe
    "compat.c"
-@@ -250,11 +254,13 @@ add_executable(dumpframe
- add_dependencies(dumpframe _update_config_h)
+@@ -255,11 +259,13 @@ add_executable(dumpframe
+ add_dependencies(dumpframe _update_version_h)
  target_link_libraries(dumpframe ${TIFF_LIBRARIES})
  
 +if(BUILD_JIFFIES)
  add_executable(fixpoint
    "delta_t.cpp"
    "fixpoint.c")
- add_dependencies(fixpoint _update_config_h)
+ add_dependencies(fixpoint _update_version_h)
  target_link_libraries(fixpoint fftw3)
 +endif()
  
- add_executable(idoc2smv
-   "${FLEX_ADOC_OUTPUTS}"
-@@ -269,6 +275,7 @@ add_executable(idoc2smv
- add_dependencies(idoc2smv _update_config_h)
+ add_executable(ht2wavelength
+   "compat.c"
+@@ -281,6 +287,7 @@ add_executable(idoc2smv
+ add_dependencies(idoc2smv _update_version_h)
  target_link_libraries(idoc2smv ${TIFF_LIBRARIES})
  
 +if(BUILD_JIFFIES)
  add_executable(img2img
+   "compat.c"
    "frame.c"
-   "img2img.c")
-@@ -316,6 +323,7 @@ add_executable(tiff2raw
+@@ -330,6 +337,7 @@ add_executable(mike_test
    "util.c")
- add_dependencies(tiff2raw _update_config_h)
+ add_dependencies(mike_test _update_version_h)
+ target_link_libraries(mike_test m)
++endif()
+ 
+ add_executable(mrc2smv
+   "compat.c"
+@@ -340,6 +348,7 @@ add_executable(mrc2smv
+   "util.c")
+ add_dependencies(mrc2smv _update_version_h)
+ 
++if(BUILD_JIFFIES)
+ add_executable(rawdump
+   "rawdump.c")
+ target_link_libraries(rawdump m)
+@@ -354,6 +363,7 @@ add_executable(tiff2raw
+   "util.c")
+ add_dependencies(tiff2raw _update_version_h)
  target_link_libraries(tiff2raw ${TIFF_LIBRARIES})
 +endif()
  
  add_executable(tiff2smv
    "compat.c"
-@@ -420,19 +428,23 @@ add_test(tvips2smv ${CMAKE_COMMAND}
+@@ -510,19 +520,27 @@ add_custom_target(check
  # CMake is generating the build system.  If no documentation exists,
  # do nothing.
  install(
 -  TARGETS tiff2smv tvips2smv
 +  TARGETS
 +    dumpframe
++    ht2wavelength
 +    idoc2smv
++    mrc2smv
 +    tiff2smv
 +    tvips2smv
    DESTINATION bin)
  install(
    FILES
++    "${PROJECT_SOURCE_DIR}/ht2wavelength.1"
      "${PROJECT_SOURCE_DIR}/tiff2smv.1"
      "${PROJECT_SOURCE_DIR}/tvips2smv.1"
 -  DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man1"
@@ -70,6 +89,7 @@ distribution.
    OPTIONAL)
  install(
    FILES
++    "${PROJECT_BINARY_DIR}/ht2wavelength.1"
      "${PROJECT_BINARY_DIR}/tiff2smv.1"
      "${PROJECT_BINARY_DIR}/tvips2smv.1"
 -  DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man1"

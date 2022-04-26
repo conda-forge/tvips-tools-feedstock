@@ -1,15 +1,23 @@
 @echo off
 
-"%PREFIX%\bin\tiff2smv"               ^
-    -a -g 5 -o "t_###.img" -z EST5EDT ^
+"%PREFIX%\bin\idoc2smv"                  ^
+    -a -f -g 5 -o "t_###.img" -z EST5EDT ^
+    "%SRC_DIR%\test\movie23.idoc"
+(
+    echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img
+) | sed -e "s/[[:space:]]*$//" | md5sum -c -
+if errorlevel 1 exit /b 1
+
+"%PREFIX%\bin\tiff2smv"                  ^
+    -a -f -g 5 -o "t_###.img" -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tif"
 (
     echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img
 ) | sed -e "s/[[:space:]]*$//" | md5sum -c -
 if errorlevel 1 exit /b 1
 
-"%PREFIX%\bin\tvips2smv"               ^
-    -a -g 5 -o "t_###.img" -z EST5EDT  ^
+"%PREFIX%\bin\tvips2smv"                 ^
+    -a -f -g 5 -o "t_###.img" -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tvips"
 (
     echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img

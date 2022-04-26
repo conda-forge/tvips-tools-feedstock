@@ -1,125 +1,205 @@
 FindIconv was introduced in CMake 3.11.  This fixes underlinking.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -12,7 +12,7 @@
- # was introduced in CMake 3.2.  XXX Including GNUInstallDirs
+@@ -13,7 +13,7 @@
+ # was introduced in CMake 3.4.  XXX Including GNUInstallDirs
  # (introduced in 2.8.5, see http://www.cmake.org/Bug/view.php?id=3976)
  # may be a bit of a wart in a non-GNU package.
 -cmake_minimum_required(VERSION 3.2)
 +cmake_minimum_required(VERSION 3.11)
  project("TVIPS tools")
- set(PACKAGE_BUGREPORT "microed@hhmi.org")
- set(PACKAGE_URL "http://cryoem.janelia.org/pages/MicroED")
-@@ -63,6 +63,10 @@ endif()
- mark_as_advanced(GSL_DIR)
+ 
+ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
+@@ -45,7 +45,6 @@ mark_as_advanced(GSL_DIR)
+ 
+ # Any POSIX-compliant version of iconv should be fine.
+ find_package(Iconv REQUIRED)
+-include_directories("${ICONV_INCLUDE_DIR}")
  
  
-+# Any POSIX-compliant version of iconv should be fine.
-+find_package(Iconv REQUIRED)
-+
-+
- # TIFFSwabFloat() was introduced in LibTIFF 4.0.0.
- find_package(TIFF 4.0.0 REQUIRED)
- 
-@@ -234,12 +238,13 @@ add_executable(cphdr
-   "cphdr.c"
-   "frame.c")
- add_dependencies(cphdr _update_config_h)
-+target_link_libraries(cphdr Iconv::Iconv)
+ # Any POSIX-compliant thread library should be fine.
+@@ -236,7 +235,7 @@ add_executable(cphdr
+   "frame.c"
+   "util.c")
+ add_dependencies(cphdr _update_version_h)
+-target_link_libraries(cphdr m)
++target_link_libraries(cphdr Iconv::Iconv m)
  
  add_executable(dan_test
-   "dan_test.c"
-   "frame.c")
- add_dependencies(dan_test _update_config_h)
+   "compat.c"
+@@ -244,7 +243,7 @@ add_executable(dan_test
+   "frame.c"
+   "util.c")
+ add_dependencies(dan_test _update_version_h)
 -target_link_libraries(dan_test m)
 +target_link_libraries(dan_test Iconv::Iconv m)
  endif()
  
  add_executable(dumpframe
-@@ -252,7 +257,7 @@ add_executable(dumpframe
+@@ -257,7 +256,7 @@ add_executable(dumpframe
    "tvips.c"
    "util.c")
- add_dependencies(dumpframe _update_config_h)
+ add_dependencies(dumpframe _update_version_h)
 -target_link_libraries(dumpframe ${TIFF_LIBRARIES})
 +target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
  
  if(BUILD_JIFFIES)
  add_executable(fixpoint
-@@ -273,13 +278,14 @@ add_executable(idoc2smv
+@@ -285,7 +284,7 @@ add_executable(idoc2smv
    "tvips.c"
    "util.c")
- add_dependencies(idoc2smv _update_config_h)
+ add_dependencies(idoc2smv _update_version_h)
 -target_link_libraries(idoc2smv ${TIFF_LIBRARIES})
 +target_link_libraries(idoc2smv Iconv::Iconv ${TIFF_LIBRARIES})
  
  if(BUILD_JIFFIES)
  add_executable(img2img
-   "frame.c"
-   "img2img.c")
- add_dependencies(img2img _update_config_h)
-+target_link_libraries(img2img Iconv::Iconv)
+@@ -294,7 +293,7 @@ add_executable(img2img
+   "img2img.c"
+   "util.c")
+ add_dependencies(img2img _update_version_h)
+-target_link_libraries(img2img m)
++target_link_libraries(img2img Iconv::Iconv m)
  
  add_executable(img2px
    "compat.c"
-@@ -289,18 +295,19 @@ add_executable(img2px
+@@ -304,7 +303,7 @@ add_executable(img2px
    "tvips.c"
    "util.c")
- add_dependencies(img2px _update_config_h)
+ add_dependencies(img2px _update_version_h)
 -target_link_libraries(img2px ${GSL_LIBRARIES} "R")
 +target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} "R")
  
  add_executable(img2splot
-   "frame.c"
-   "img2splot.c")
- add_dependencies(img2splot _update_config_h)
-+target_link_libraries(img2splot Iconv::Iconv)
+   "compat.c"
+@@ -312,7 +311,7 @@ add_executable(img2splot
+   "img2splot.c"
+   "util.c")
+ add_dependencies(img2splot _update_version_h)
+-target_link_libraries(img2splot m)
++target_link_libraries(img2splot Iconv::Iconv m)
  
  add_executable(imgcorr
-   "imgcorr.c"
-   "frame.c")
- add_dependencies(imgcorr _update_config_h)
+   "compat.c"
+@@ -320,7 +319,7 @@ add_executable(imgcorr
+   "frame.c"
+   "util.c")
+ add_dependencies(imgcorr _update_version_h)
 -target_link_libraries(imgcorr m)
 +target_link_libraries(imgcorr Iconv::Iconv m)
  
  add_executable(imgrevert
    "compat.c"
-@@ -308,6 +315,7 @@ add_executable(imgrevert
+@@ -328,7 +327,7 @@ add_executable(imgrevert
    "imgrevert.c"
    "util.c")
- add_dependencies(imgrevert _update_config_h)
-+target_link_libraries(imgrevert Iconv::Iconv)
+ add_dependencies(imgrevert _update_version_h)
+-target_link_libraries(imgrevert m)
++target_link_libraries(imgrevert Iconv::Iconv m)
  
- add_executable(rawdump
-   "rawdump.c")
-@@ -322,7 +330,7 @@ add_executable(tiff2raw
+ add_executable(mike_test
+   "compat.c"
+@@ -336,7 +335,7 @@ add_executable(mike_test
+   "mike_test.c"
+   "util.c")
+ add_dependencies(mike_test _update_version_h)
+-target_link_libraries(mike_test m)
++target_link_libraries(mike_test Iconv::Iconv m)
+ endif()
+ 
+ add_executable(mrc2smv
+@@ -347,6 +346,7 @@ add_executable(mrc2smv
    "tvips.c"
    "util.c")
- add_dependencies(tiff2raw _update_config_h)
+ add_dependencies(mrc2smv _update_version_h)
++target_link_libraries(mrc2smv Iconv::Iconv)
+ 
+ if(BUILD_JIFFIES)
+ add_executable(rawdump
+@@ -362,7 +362,7 @@ add_executable(tiff2raw
+   "tvips.c"
+   "util.c")
+ add_dependencies(tiff2raw _update_version_h)
 -target_link_libraries(tiff2raw ${TIFF_LIBRARIES})
 +target_link_libraries(tiff2raw Iconv::Iconv ${TIFF_LIBRARIES})
  endif()
  
  add_executable(tiff2smv
-@@ -334,7 +342,7 @@ add_executable(tiff2smv
-   "tvips.c"
-   "util.c")
- add_dependencies(tiff2smv _update_config_h)
--target_link_libraries(tiff2smv ${TIFF_LIBRARIES})
-+target_link_libraries(tiff2smv Iconv::Iconv ${TIFF_LIBRARIES})
+@@ -376,7 +376,7 @@ add_executable(tiff2smv
+ add_dependencies(tiff2smv _update_version_h)
+ target_link_libraries(tiff2smv
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${ICONV_LIBRARIES}
++  Iconv::Iconv
+   ${TIFF_LIBRARIES})
  
  add_executable(tvips2smv
-   "compat.c"
-@@ -344,6 +352,7 @@ add_executable(tvips2smv
+@@ -387,7 +387,7 @@ add_executable(tvips2smv
    "tvips.c"
    "util.c")
- add_dependencies(tvips2smv _update_config_h)
+ add_dependencies(tvips2smv _update_version_h)
+-target_link_libraries(tvips2smv ${ICONV_LIBRARIES})
 +target_link_libraries(tvips2smv Iconv::Iconv)
  
  
  # Commands for generating the documentation in the binary directory,
+--- tvips/cmake/Modules/FindIconv.cmake
++++ /dev/null
+@@ -1,51 +0,0 @@
+-# -*- mode: cmake -*-
+-
+-# - Try to find Iconv
+-# Once done this will define
+-#
+-#  ICONV_FOUND - system has Iconv
+-#  ICONV_INCLUDE_DIR - the Iconv include directory
+-#  ICONV_LIBRARIES - Link these to use Iconv
+-#  ICONV_VERSION - Iconv version string
+-#  ICONV_SECOND_ARGUMENT_IS_CONST - the second argument for iconv() is const
+-#
+-# XXX 2017-06-27: from https://cmake.org/Bug/view.php?id=13517
+-
+-include(CheckCSourceCompiles)
+-
+-find_path(ICONV_INCLUDE_DIR iconv.h)
+-find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
+-
+-# handle the QUIETLY and REQUIRED arguments and set ICONV_FOUND to
+-# TRUE if all listed variables are TRUE
+-include(FindPackageHandleStandardArgs)
+-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ICONV
+-  REQUIRED_VARS ICONV_LIBRARIES ICONV_INCLUDE_DIR VERSION_VAR ICONV_VERSION)
+-
+-if(ICONV_FOUND)
+-  set(CMAKE_REQUIRED_INCLUDES "${ICONV_INCLUDE_DIR}")
+-  set(CMAKE_REQUIRED_LIBRARIES "${ICONV_LIBRARIES}")
+-
+-  CHECK_C_SOURCE_COMPILES("
+-    #include <iconv.h>
+-    int
+-    main(int argc, char *argv[])
+-    {
+-        iconv_t conv = 0;
+-        const char* in = 0;
+-        size_t ilen = 0;
+-        char* out = 0;
+-        size_t olen = 0;
+-        iconv(conv, &in, &ilen, &out, &olen);
+-        return (0);
+-    }"
+-    ICONV_SECOND_ARGUMENT_IS_CONST )
+-
+-  set(CMAKE_REQUIRED_INCLUDES)
+-  set(CMAKE_REQUIRED_LIBRARIES)
+-endif(ICONV_FOUND)
+-
+-mark_as_advanced(
+-  ICONV_INCLUDE_DIR
+-  ICONV_LIBRARIES
+-  ICONV_SECOND_ARGUMENT_IS_CONST)
 --- tvips/config.h.in.orig
 +++ tvips/config.h.in
-@@ -162,6 +162,20 @@
+@@ -93,6 +93,20 @@
       realpath(const char *pathname, char *resolved);
  #endif
  
@@ -153,7 +233,7 @@ FindIconv was introduced in CMake 3.11.  This fixes underlinking.
  #include <strings.h>
 --- tvips/tiff.c.orig
 +++ tvips/tiff.c
-@@ -34,7 +34,7 @@
+@@ -42,7 +42,7 @@
  #include <stdlib.h>
  
  #include <errno.h>
@@ -161,4 +241,4 @@ FindIconv was introduced in CMake 3.11.  This fixes underlinking.
 +#include TVIPS_TOOLS_ICONV_H
  #include <limits.h>
  #include <math.h>
- #include <string.h>
+ #include <pthread.h>

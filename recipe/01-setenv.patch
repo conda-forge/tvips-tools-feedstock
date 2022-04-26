@@ -1,47 +1,7 @@
 Avoid setenv(3) with zero-length name parameter.
---- tvips/dumpframe.c.orig
-+++ tvips/dumpframe.c
-@@ -2402,7 +2402,7 @@ main(int argc, char *argv[])
-              * XXX This is essentially the tvips_ctime_tiff() function
-              * from tiff.c with all the comments stripped.
-              */
--            if (zone != NULL) {
-+            if (zone != NULL && zone[0] != '\0') {
-                 zone_save = getenv("TZ");
-                 if (setenv("TZ", zone, 1) != 0) {
-                     metadata_dict_free(dict);
-@@ -2510,7 +2510,7 @@ main(int argc, char *argv[])
-                     break;
-                 }
- 
--                if (zone != NULL) {
-+                if (zone != NULL && zone[0] != '\0') {
-                     if (zone_save != NULL)
-                         setenv("TZ", zone_save, 1);
-                     else
---- tvips/frame.c.orig
-+++ tvips/frame.c
-@@ -518,7 +518,7 @@ frame_read(FILE *stream)
-                 goto exit_error;
-             }
- 
--            if (setenv("TZ", "", 1) != 0)
-+            if (unsetenv("TZ") != 0)
-                 goto exit_error;
-             tzset();
- 
-@@ -723,7 +723,7 @@ exit_success:
-      * unsetenv(3) should not fail; if they do, they may prevent errno
-      * from representing the true cause of any previous error.
-      */
--    if (zone_save)
-+    if (zone_save != NULL && zone_save[0] != '\0')
-         setenv("TZ", zone_save, 1);
-     else
-         unsetenv("TZ");
---- tvips/tiff.c.orig
-+++ tvips/tiff.c
-@@ -642,12 +642,13 @@ _mktimez(struct tm *tm, const char *zone)
+--- tvips/util.c.orig
++++ tvips/util.c
+@@ -238,23 +238,22 @@ mktimez(struct tm *tm, const char *zone)
      time_t t;
      int errno_save;
  
@@ -51,20 +11,10 @@ Avoid setenv(3) with zero-length name parameter.
 -            return (-1);
 -        tzset();
 -    }
+-    t = mktime(tm);
 +    if (zone == NULL || zone[0] == '\0')
 +        return (mktime(tm));
-+
-+    zone_save = getenv("TZ");
-+    if (setenv("TZ", zone, 1) != 0)
-+        return (-1);
-+    tzset();
-     t = mktime(tm);
  
- 
-@@ -655,15 +656,13 @@ _mktimez(struct tm *tm, const char *zone)
-      * should not prevent errno from representing the true cause of
-      * any previous errors.
-      */
 -    if (zone != NULL) {
 -        errno_save = errno;
 -        if (zone_save != NULL)
@@ -74,6 +24,12 @@ Avoid setenv(3) with zero-length name parameter.
 -        tzset();
 -        errno = errno_save;
 -    }
++    zone_save = getenv("TZ");
++    if (setenv("TZ", zone, 1) != 0)
++        return (-1);
++    tzset();
++
++    t = mktime(tm);
 +    errno_save = errno;
 +    if (zone_save != NULL)
 +        setenv("TZ", zone_save, 1);
