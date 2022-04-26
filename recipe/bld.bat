@@ -1,6 +1,6 @@
 @echo off
 
-echo v0.1.0-dev.1-0-g00fc275-experimental/jiffies ^
+echo v0.1.0-dev.2-0-ga7f39fa-experimental/jiffies ^
     > "%SRC_DIR%\TVIPS-TOOLS-VERSION-FILE"
 del "%SRC_DIR%\VERSION"
 

@@ -1,0 +1,30 @@
+--- tvips/idoc2smv.c.orig
++++ tvips/idoc2smv.c
+@@ -129,8 +129,7 @@ adoc_readfile(
+     nmemb_angles_tvs = 0;
+     for (i = counter = 0; i < root->children_nmemb; i++) {
+         dict = root->children[i];
+-        if (dict->nmemb != 1 ||
+-            dict->children_nmemb == 0 ||
++        if (dict->children_nmemb == 0 ||
+             dict->name == NULL ||
+             strcmp(dict->name, "Image") != 0) {
+             continue;
+@@ -263,7 +262,6 @@ adoc_readfile(
+     }
+     wavelength = 1e10 * ht2wavelengthf(1e3 * voltage);
+ 
+-
+     for (i = counter = 0; i < root->children_nmemb; i++) {
+         /* One-based counter only increases for actual images, but
+          * irrespective of whether image extraction and output
+@@ -273,8 +271,7 @@ adoc_readfile(
+          * here!  The same applies to the previous loop.
+          */
+         dict = root->children[i];
+-        if (dict->nmemb != 1 ||
+-            dict->children_nmemb == 0 ||
++        if (dict->children_nmemb == 0 ||
+             dict->name == NULL ||
+             strcmp(dict->name, "Image") != 0) {
+             continue;

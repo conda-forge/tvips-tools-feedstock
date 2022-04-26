@@ -1,6 +1,6 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.1.0-dev.1" %}
+{% set version = "0.1.0-dev.2" %}
 
 package:
   name: {{ tarname }}
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: 4c6e224fc1492d09d18c5ceae42424a14b74f589d5c74e8fb703dcbf2f10d4fa
+  sha256: e6555c91e8ffda69be2a0efc1782f78e5950a165a258643a2995256710f41701
   patches:
     - 01-setenv.patch
     - 02-version.patch
@@ -18,7 +18,7 @@ source:
     - 06-err_h.patch
     - 07-windows.patch
     - 08-gcc.patch
-    - 09-cmake.patch
+    - 09-idoc2smv.patch
     - 10-warnings.patch
 
 build:
@@ -41,10 +41,12 @@ requirements:
     - m2-flex      >=2.5.34,<3  # [win]
     - make                      # [unix]
   host:
-    - libiconv      # [win]
-    - libtiff  4.*
+    - libiconv                     # [win]
+    - m2w64-libwinpthread-git      # [win]
+    - libtiff                 4.*
   run:
     - libiconv                                        # [win]
+    - m2w64-libwinpthread-git                         # [win]
     - {{ pin_compatible('libtiff', max_pin='x.x') }}
 
 test:
@@ -53,6 +55,7 @@ test:
     - m2-coreutils  # [win]
     - m2-sed        # [win]
   source_files:
+    - test/*.idoc
     - test/*.tif
     - test/*.tvips
 

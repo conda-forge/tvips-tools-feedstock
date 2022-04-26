@@ -1,17 +1,15 @@
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -210,10 +210,10 @@ add_custom_target(_update_config_h
+@@ -204,9 +204,7 @@ include_directories("${PROJECT_BINARY_DIR}")
  
  # On macOS _DARWIN_C_SOURCE is required to expose non-POSIX
  # extensions, such as getprogname(3) and setprogname(3).  On Linux
 -# _BSD_SOURCE and _XOPEN_SOURCE >= 600 are needed for for
-+# _DEFAULT_SOURCE and _XOPEN_SOURCE >= 600 are needed for for
- # strncasecmp(3) and strtof(3), respectively.
+-# strncasecmp(3) and strtof(3), respectively.
 -add_definitions(-D_BSD_SOURCE)
++# _XOPEN_SOURCE >= 600 is needed for strtof(3).
  add_definitions(-D_DARWIN_C_SOURCE)
-+add_definitions(-D_DEFAULT_SOURCE)
  add_definitions(-D_XOPEN_SOURCE=600)
- 
  
 --- tvips/adoc.l.orig
 +++ tvips/adoc.l
@@ -24,6 +22,14 @@
  #include <time.h>
  
  #include "adoc.h"
+@@ -414,6 +414,7 @@ adoc_parse(FILE *stream, const char *zone)
+     if (adoclex_init_extra(&yylval, &scanner) != 0)
+         return (NULL);
+ 
++    item = NULL;
+     dict = root = metadata_item_new(NULL);
+     if (dict == NULL)
+         return (NULL);
 --- tvips/dan_test.c.orig
 +++ tvips/dan_test.c
 @@ -101,7 +101,7 @@ main(int argc, char *argv[])
@@ -98,9 +104,23 @@
  
  
  /* XXX Would be great if we could use some sort of opacity here...
+--- tvips/mrc2smv.c.orig
++++ tvips/mrc2smv.c
+@@ -246,9 +246,9 @@ mrc_readfile(
+ 
+         if (nc * nr * ns * bps / 8 + LIBMAPIO_HEADER_SIZE != buf.st_size) {
+             fclose(stream);
+-            fprintf(stderr, "Size mismatch %lu != %zd\n",
++            fprintf(stderr, "Size mismatch %lu != %lld\n",
+                     nc * nr * ns * bps / 8 + LIBMAPIO_HEADER_SIZE,
+-                    buf.st_size);
++                    (long long int)buf.st_size);
+             return (-1);
+         }
+ 
 --- tvips/tiff.c.orig
 +++ tvips/tiff.c
-@@ -33,6 +33,7 @@
+@@ -41,6 +41,7 @@
  
  #include <stdlib.h>
  
@@ -108,7 +128,7 @@
  #include <errno.h>
  #include TVIPS_TOOLS_ICONV_H
  #include <limits.h>
-@@ -299,8 +300,8 @@ _tiff_raster(TIFF *tif, struct frame_panel *panel)
+@@ -331,8 +332,8 @@ _tiff_raster(TIFF *tif, struct frame_panel *panel)
      void *p;
      tdata_t src_data;
      tsize_t src_size;
@@ -119,21 +139,29 @@
  
  
      /* Only grayscale images are supported.  Such images have a depth
-@@ -886,9 +887,9 @@ tvips_readoutgeometry_tiff(const struct tvips_tiff *handle)
+@@ -899,8 +900,7 @@ tvips_readoutgeometry_tiff(const struct tvips_tiff *handle)
  int
  tvips_read_header(struct tvips_tiff *handle)
  {
--    uint32 *offset;
-+    uint32_t *offset;
-     uint32_t version;
--    uint16 count;
-+    uint16_t count;
+-    uint32 offset;
+-    uint32_t version;
++    uint32_t offset, version;
  
  
-     /* Read the TemData structure using the new tag, which is provided
+     /* Get a pointer to the TemData structure using the new tag, which
+--- tvips/tvips.c.orig
++++ tvips/tvips.c
+@@ -259,6 +259,7 @@ tvips_readfile(
+         return (-1);
+     }
+ 
++    lCounter = 0;
+     while (!feof(stream)) {
+         /* Read the image header.
+          */
 --- tvips/util.c.orig
 +++ tvips/util.c
-@@ -35,6 +35,7 @@
+@@ -40,6 +40,7 @@
  #include <errno.h>
  #include <libgen.h>
  #include <string.h>

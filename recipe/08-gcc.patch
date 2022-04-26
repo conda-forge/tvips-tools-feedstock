@@ -1,4 +1,95 @@
-Fix compilation with gcc-10; thanks to Tim Grüne.
+Fix compilation with gcc-6 and gcc-10; thanks to Tim Grüne.
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -245,6 +245,7 @@ add_executable(dumpframe
+   "tvips.c"
+   "util.c")
+ add_dependencies(dumpframe _update_version_h)
++target_compile_features(dumpframe PRIVATE cxx_constexpr)
+ target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
+ 
+ if(BUILD_JIFFIES)
+@@ -253,6 +254,7 @@ add_executable(fixpoint
+   "delta_t.cpp"
+   "fixpoint.c")
+ add_dependencies(fixpoint _update_version_h)
++target_compile_features(fixpoint PRIVATE cxx_constexpr)
+ target_link_libraries(fixpoint fftw3)
+ endif()
+ 
+@@ -262,6 +264,7 @@ add_executable(ht2wavelength
+   "ht2wavelength.c"
+   "util.c")
+ add_dependencies(ht2wavelength _update_version_h)
++target_compile_features(ht2wavelength PRIVATE cxx_constexpr)
+ 
+ add_executable(idoc2smv
+   "${FLEX_ADOC_OUTPUTS}"
+@@ -274,6 +277,7 @@ add_executable(idoc2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(idoc2smv _update_version_h)
++target_compile_features(idoc2smv PRIVATE cxx_constexpr)
+ target_link_libraries(idoc2smv Iconv::Iconv ${TIFF_LIBRARIES})
+ 
+ if(BUILD_JIFFIES)
+@@ -293,6 +297,7 @@ add_executable(img2px
+   "tvips.c"
+   "util.c")
+ add_dependencies(img2px _update_version_h)
++target_compile_features(img2px PRIVATE cxx_constexpr)
+ target_link_libraries(img2px Iconv::Iconv)
+ 
+ add_executable(img2splot
+@@ -336,6 +341,7 @@ add_executable(mrc2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(mrc2smv _update_version_h)
++target_compile_features(mrc2smv PRIVATE cxx_constexpr)
+ target_link_libraries(mrc2smv Iconv::Iconv)
+ 
+ if(BUILD_JIFFIES)
+@@ -353,6 +359,7 @@ add_executable(tiff2raw
+   "tvips.c"
+   "util.c")
+ add_dependencies(tiff2raw _update_version_h)
++target_compile_features(tiff2raw PRIVATE cxx_constexpr)
+ target_link_libraries(tiff2raw Iconv::Iconv ${TIFF_LIBRARIES})
+ endif()
+ 
+@@ -365,6 +372,7 @@ add_executable(tiff2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(tiff2smv _update_version_h)
++target_compile_features(tiff2smv PRIVATE cxx_constexpr)
+ target_link_libraries(tiff2smv
+   ${CMAKE_THREAD_LIBS_INIT}
+   Iconv::Iconv
+@@ -378,6 +386,7 @@ add_executable(tvips2smv
+   "tvips.c"
+   "util.c")
+ add_dependencies(tvips2smv _update_version_h)
++target_compile_features(tvips2smv PRIVATE cxx_constexpr)
+ target_link_libraries(tvips2smv Iconv::Iconv)
+ 
+ 
+--- tvips/delta_t.cpp.orig
++++ tvips/delta_t.cpp
+@@ -90,10 +90,10 @@ namespace
+          * overflow the exponent of the IEEE single-precision binary
+          * floating-point format.
+          */
+-        static const T c = 2.99792458;
+-        static const T e = 1.602176565;
+-        static const T h = 6.62606957;
+-        static const T m = 9.10938215;
++        static constexpr T c = 2.99792458;
++        static constexpr T e = 1.602176565;
++        static constexpr T h = 6.62606957;
++        static constexpr T m = 9.10938215;
+ 
+ 
+     public:
 --- tvips/tvips.h.orig
 +++ tvips/tvips.h
 @@ -97,7 +97,7 @@ enum output_format {

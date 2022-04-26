@@ -1,142 +1,5 @@
 Fallback implementations for Windows.  These will require config.h to
 be included.
---- tvips/adoc.l.orig
-+++ tvips/adoc.l
-@@ -45,7 +45,7 @@
-  */
- union yylval
- {
--    struct timespec tv;
-+    struct tm tm;
-     char *str;
-     long int integer;
-     double real;
-@@ -63,7 +63,7 @@ enum tokens
-     SECTION_START,
-     SECTION_STOP,
-     STRING,
--    TIMESPEC
-+    TIME
- };
- 
- %}
-@@ -215,25 +215,78 @@ enum tokens
- }
- 
- 
--  /* Scan a timestamp on the form "%d-%b-%y %H:%M:%S".  The %y
--   * conversion is a tad finicky; see strptime(3) for details.  If the
--   * conversion fails, yyextra->tv.tv_sec is set -1.
--   *
--   * XXX This may eventually need a custom implementation as in
--   * frame.c.
-+  /* Scan a timestamp on the form "%d-%b-%y  %H:%M:%S" in the current
-+   * time zone.  If the conversion fails, yyextra->tm.tm_wday is set
-+   * to -1.  See also _strptime() in frame.c.
-    */
- <S_VALUE>[[:digit:]]{2}-[[:alpha:]]{3}-[[:digit:]]{2}"  "[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2} {
--    struct tm tm;
--    char *c;
-+    const char* C_mon[12] = {
-+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-+
-+    /* A negative value for tm_isdst causes mktime(3) to attempt to
-+     * divine whether summer time is in effect for the specified time.
-+     */
-+    yyextra->tm.tm_hour
-+        = yyextra->tm.tm_isdst
-+        = yyextra->tm.tm_mday
-+        = yyextra->tm.tm_min
-+        = yyextra->tm.tm_mon
-+        = yyextra->tm.tm_sec
-+        = yyextra->tm.tm_wday
-+        = yyextra->tm.tm_yday
-+        = yyextra->tm.tm_year
-+        = -1;
-+
-+
-+    /* Parse day of month, the month, and the base-1900 year.
-+     * SerialEM uses a hardcoded, locale-independent list of
-+     * three-letter month names, which is reproduced in C_mon.  Years
-+     * in the range 69-99 refer to the twentieth century (1969 to 1999
-+     * inclusive); years in the range 00-68 refer to years in the
-+     * twenty-first century (2000-2068 inclusive).
-+     */
-+    yyextra->tm.tm_mday = strtol(yytext, NULL, 10);
-+    if (yyextra->tm.tm_mday < 1 || yyextra->tm.tm_mday > 31)
-+        return (TIME);
-+
-+    for (yyextra->tm.tm_mon = 0; yyextra->tm.tm_mon < 12; yyextra->tm.tm_mon++) {
-+        if (strncasecmp(yytext + 3, C_mon[yyextra->tm.tm_mon], 3) == 0)
-+            break;
-+    }
-+    if (yyextra->tm.tm_mon == 12)
-+        return (TIME);
- 
--    c = strptime(yytext, "%d-%b-%y  %H:%M:%S", &tm);
--    if (c != NULL && c[0] == '\0')
--        yyextra->tv.tv_sec = mktime(&tm);
--    else
--        yyextra->tv.tv_sec = -1;
--    yyextra->tv.tv_nsec = 0;
-+    yyextra->tm.tm_year = strtol(yytext + 7, NULL, 10);
-+    if (yyextra->tm.tm_year < 0 || yyextra->tm.tm_year > 99)
-+        return (TIME);
-+    if(yyextra->tm.tm_year <= 68)
-+        yyextra->tm.tm_year += 100;
- 
--    return (TIMESPEC);
-+
-+    /* Parse the hour, the minute, and the seconds in 24-hour clock
-+     * format.  Due to leap seconds, there may be 61 seconds to a
-+     * minute.
-+     */
-+    yyextra->tm.tm_hour = strtol(yytext + 11, NULL, 10);
-+    if (yyextra->tm.tm_hour < 0 || yyextra->tm.tm_hour > 23)
-+        return (TIME);
-+
-+    yyextra->tm.tm_min = strtol(yytext + 14, NULL, 10);
-+    if (yyextra->tm.tm_min < 0 || yyextra->tm.tm_min > 59)
-+        return (TIME);
-+
-+    yyextra->tm.tm_sec = strtol(yytext + 17, NULL, 10);
-+    if (yyextra->tm.tm_sec < 0 || yyextra->tm.tm_sec > 60)
-+        return (TIME);
-+
-+
-+    /* All fields required by mktime(3) are now assigned.  The tm_wday
-+     * and tm_yday components of the structure are ignored by
-+     * mktime(3).
-+     */
-+    yyextra->tm.tm_wday = yyextra->tm.tm_yday = 0;
-+    return (TIME);
- }
- 
- 
-@@ -299,15 +352,18 @@ _scan_values(yyscan_t scanner, union yylval *yylval, struct metadata_item *item)
-                 return (-1);
-             break;
- 
--        case TIMESPEC:
-+        case TIME:
-             /* XXX This is probably dependent on the time zone, but
-              * does it depend on the locale as well?
-              */
--            //printf("  Scanned TIMESPEC value\n");
--            if (yylval->tv.tv_sec == -1)
-+            //printf("  Scanned TIME value\n");
-+            if (yylval->tm.tm_wday == -1)
-+                return (-1);
-+            variant.value.tv.tv_sec = mktime(&yylval->tm);
-+            if (variant.value.tv.tv_sec == -1)
-                 return (-1);
-+            variant.value.tv.tv_nsec = 0;
-             variant.type = metadata_type_tv;
--            variant.value.tv = yylval->tv;
-             break;
- 
-         default:
 --- tvips/fixpoint.c.orig
 +++ tvips/fixpoint.c
 @@ -637,7 +637,7 @@ main(int argc, char *argv[])
@@ -182,7 +45,7 @@ be included.
  
 --- tvips/tiff.c.orig
 +++ tvips/tiff.c
-@@ -668,6 +668,44 @@ _mktimez(struct tm *tm, const char *zone)
+@@ -681,6 +681,44 @@ tvips_close_tiff(struct tvips_tiff *handle)
  }
  
  
@@ -227,7 +90,7 @@ be included.
  int
  tvips_ctime_tiff(
      struct tvips_tiff *handle, const char *zone, struct timespec *tv)
-@@ -693,8 +731,7 @@ tvips_ctime_tiff(
+@@ -706,8 +744,7 @@ tvips_ctime_tiff(
              return (-1);
          }
  
@@ -236,4 +99,36 @@ be included.
 +        if (_strptime(tiff_datetime, &tm) != 0)
              return (-1);
  
-         tv->tv_sec = _mktimez(&tm, zone);
+         tv->tv_sec = mktimez(&tm, zone);
+--- tvips/util.c.orig
++++ tvips/util.c
+@@ -172,7 +172,7 @@ mkstemplate(const char *template, size_t seqno, int force)
+     char *dir, *path;
+     size_t len;
+     mode_t mode, mode_save;
+-    int cc, ch, errno_save, fd;
++    int cc, ch, errno_save, fd, flags;
+ 
+ 
+     len = strlen(template) + 1;
+@@ -197,13 +197,16 @@ mkstemplate(const char *template, size_t seqno, int force)
+         return (-1);
+     }
+ 
++    flags = O_WRONLY | O_CREAT | O_TRUNC;
++#ifdef __MINGW32__
++    flags |= _O_BINARY;
++#endif
++
+     if (force != 0) {
+-        fd = open(
+-            path, O_WRONLY | O_CREAT | O_TRUNC, 0666 & ~mode_save);
++        fd = open(path, flags, 0666 & ~mode_save);
+ 
+     } else {
+-        fd = open(
+-            path, O_WRONLY | O_CREAT | O_EXCL | O_TRUNC, 0666 & ~mode_save);
++        fd = open(path, flags | O_EXCL, 0666 & ~mode_save);
+         if (fd == -1 && errno == EEXIST) {
+             /* The file exists and user confirmation is required
+              * before overwriting it.  There is no point in attempting

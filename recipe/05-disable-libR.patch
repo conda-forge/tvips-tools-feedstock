@@ -2,7 +2,7 @@ libR and GSL are not actually used, but img2px should not be
 distributed because it includes GPLd code.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -51,18 +51,6 @@ include(TestBigEndian)
+@@ -31,18 +31,6 @@ include(TestBigEndian)
  find_package(FLEX 2.5.34 REQUIRED)
  
  
@@ -21,7 +21,7 @@ distributed because it includes GPLd code.
  # Any POSIX-compliant version of iconv should be fine.
  find_package(Iconv REQUIRED)
  
-@@ -197,10 +185,7 @@ configure_file(
+@@ -181,10 +169,7 @@ configure_file(
  add_definitions(-DHAVE_CONFIG_H)
  include_directories(
    "${PROJECT_SOURCE_DIR}"
@@ -32,15 +32,15 @@ distributed because it includes GPLd code.
    "${TIFF_INCLUDE_DIR}")
  
  
-@@ -295,7 +280,7 @@ add_executable(img2px
+@@ -303,7 +288,7 @@ add_executable(img2px
    "tvips.c"
    "util.c")
- add_dependencies(img2px _update_config_h)
+ add_dependencies(img2px _update_version_h)
 -target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} "R")
 +target_link_libraries(img2px Iconv::Iconv)
  
  add_executable(img2splot
-   "frame.c"
+   "compat.c"
 --- tvips/cmake/Modules/FindGSL.cmake
 +++ /dev/null
 @@ -1,36 +0,0 @@
@@ -90,9 +90,9 @@ distributed because it includes GPLd code.
  #include <stdlib.h>
  
  #include <err.h>
-@@ -37,8 +38,7 @@
- #    include <unistd.h> // XXX For sleep(3)
- #endif
+@@ -34,8 +35,7 @@
+ #include <strings.h>
+ #include <unistd.h>
  
 -#include <R_ext/Applic.h>
 -#include <R_ext/Memory.h>
