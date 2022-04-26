@@ -2,17 +2,17 @@ Do not build the jiffies by default, they are not intended for
 distribution.  img2px is a jiffy in this version.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -227,6 +227,9 @@ add_definitions(-D_XOPEN_SOURCE=600)
- # target.  Recompilation will only occur if version.h actually
- # changes.  XXX Oddly have to give libm for dan_test, imgcorr, and
+@@ -237,6 +237,9 @@ add_definitions(-D_XOPEN_SOURCE=600)
  # rawdump, but nothing else?
+ #
+ # Anything that links in delta_t.cpp will need cxx_constexpr.
 +set(BUILD_JIFFIES OFF CACHE BOOL
 +  "Build MicroED developer jiffies, not for distribution")
 +if(BUILD_JIFFIES)
  add_executable(cphdr
    "compat.c"
    "cphdr.c"
-@@ -242,6 +245,7 @@ add_executable(dan_test
+@@ -252,6 +255,7 @@ add_executable(dan_test
    "util.c")
  add_dependencies(dan_test _update_version_h)
  target_link_libraries(dan_test m)
@@ -20,8 +20,8 @@ distribution.  img2px is a jiffy in this version.
  
  add_executable(dumpframe
    "compat.c"
-@@ -255,11 +259,13 @@ add_executable(dumpframe
- add_dependencies(dumpframe _update_version_h)
+@@ -266,12 +270,14 @@ add_dependencies(dumpframe _update_version_h)
+ target_compile_features(dumpframe PRIVATE cxx_constexpr)
  target_link_libraries(dumpframe ${TIFF_LIBRARIES})
  
 +if(BUILD_JIFFIES)
@@ -29,20 +29,21 @@ distribution.  img2px is a jiffy in this version.
    "delta_t.cpp"
    "fixpoint.c")
  add_dependencies(fixpoint _update_version_h)
+ target_compile_features(fixpoint PRIVATE cxx_constexpr)
  target_link_libraries(fixpoint fftw3)
 +endif()
  
  add_executable(ht2wavelength
    "compat.c"
-@@ -281,6 +287,7 @@ add_executable(idoc2smv
- add_dependencies(idoc2smv _update_version_h)
+@@ -295,6 +301,7 @@ add_dependencies(idoc2smv _update_version_h)
+ target_compile_features(idoc2smv PRIVATE cxx_constexpr)
  target_link_libraries(idoc2smv ${TIFF_LIBRARIES})
  
 +if(BUILD_JIFFIES)
  add_executable(img2img
    "compat.c"
    "frame.c"
-@@ -330,6 +337,7 @@ add_executable(mike_test
+@@ -345,6 +352,7 @@ add_executable(mike_test
    "util.c")
  add_dependencies(mike_test _update_version_h)
  target_link_libraries(mike_test m)
@@ -50,23 +51,23 @@ distribution.  img2px is a jiffy in this version.
  
  add_executable(mrc2smv
    "compat.c"
-@@ -340,6 +348,7 @@ add_executable(mrc2smv
-   "util.c")
+@@ -356,6 +364,7 @@ add_executable(mrc2smv
  add_dependencies(mrc2smv _update_version_h)
+ target_compile_features(mrc2smv PRIVATE cxx_constexpr)
  
 +if(BUILD_JIFFIES)
  add_executable(rawdump
    "rawdump.c")
  target_link_libraries(rawdump m)
-@@ -354,6 +363,7 @@ add_executable(tiff2raw
-   "util.c")
+@@ -371,6 +380,7 @@ add_executable(tiff2raw
  add_dependencies(tiff2raw _update_version_h)
+ target_compile_features(tiff2raw PRIVATE cxx_constexpr)
  target_link_libraries(tiff2raw ${TIFF_LIBRARIES})
 +endif()
  
  add_executable(tiff2smv
    "compat.c"
-@@ -510,19 +520,27 @@ add_custom_target(check
+@@ -529,19 +539,27 @@ add_custom_target(check
  # CMake is generating the build system.  If no documentation exists,
  # do nothing.
  install(

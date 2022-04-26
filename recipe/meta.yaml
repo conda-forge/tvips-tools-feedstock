@@ -1,6 +1,6 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.1.0-dev.2" %}
+{% set version = "0.1.0-dev.3" %}
 
 package:
   name: {{ tarname }}
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: e6555c91e8ffda69be2a0efc1782f78e5950a165a258643a2995256710f41701
+  sha256: 38c84a8efec6e660261dc59e398c6303f0709afb7a51b46b751864a442f9b9b7
   patches:
     - 01-setenv.patch
     - 02-version.patch
@@ -18,8 +18,7 @@ source:
     - 06-err_h.patch
     - 07-windows.patch
     - 08-gcc.patch
-    - 09-idoc2smv.patch
-    - 10-warnings.patch
+    - 09-warnings.patch
 
 build:
   ignore_run_exports_from:

@@ -7,7 +7,7 @@ named VERSION, because that will clash with a system-provided header
 on case-insensitive macOS filesystems.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -129,10 +129,10 @@ CHECK_FUNCTION_EXISTS(setprogname HAVE_SETPROGNAME)
+@@ -139,10 +139,10 @@ CHECK_FUNCTION_EXISTS(setprogname HAVE_SETPROGNAME)
  flex_target(ADOC adoc.l ${CMAKE_CURRENT_BINARY_DIR}/lex.adoc.c)
  
  
@@ -22,7 +22,7 @@ on case-insensitive macOS filesystems.
  #
  # XXX The "--reference-links" option does not create numbered links,
  # and the lack of paragraph indentation makes reading a tad difficult
-@@ -167,10 +167,10 @@ add_custom_command(
+@@ -177,10 +177,10 @@ add_custom_command(
  add_custom_command(
    COMMAND ${CMAKE_COMMAND}
      "-DGIT=${GIT}"
@@ -35,7 +35,7 @@ on case-insensitive macOS filesystems.
    VERBATIM)
  
  
-@@ -191,20 +191,20 @@ include_directories(
+@@ -201,20 +201,20 @@ include_directories(
  
  # The _update_version_h target conditionally regenerates version.h: it
  # has no output file and version.h is always considered out of date.
@@ -64,7 +64,7 @@ on case-insensitive macOS filesystems.
      "-DPROJECT_NAME=${PROJECT_NAME}"
      "-DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
      -P "${PROJECT_SOURCE_DIR}/cmake/Modules/UpdateVersionH.cmake"
-@@ -555,14 +555,14 @@ add_custom_command(
+@@ -574,14 +574,14 @@ add_custom_command(
    COMMAND ${CMAKE_COMMAND} -E copy
      "${PROJECT_BINARY_DIR}/LICENSE"
      "${PROJECT_BINARY_DIR}/README"
@@ -168,7 +168,7 @@ on case-insensitive macOS filesystems.
  
 --- tvips/util.c.orig
 +++ tvips/util.c
-@@ -283,25 +283,31 @@ version(FILE *stream)
+@@ -284,25 +284,31 @@ version(FILE *stream)
  
      } else {
          tot += ret = fprintf(

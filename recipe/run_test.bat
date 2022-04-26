@@ -4,7 +4,7 @@
     -a -f -g 5 -o "t_###.img" -z EST5EDT ^
     "%SRC_DIR%\test\movie23.idoc"
 (
-    echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img
+    echo 9f01e41a1e01ad59668450160c873214  t_000.img
 ) | sed -e "s/[[:space:]]*$//" | md5sum -c -
 if errorlevel 1 exit /b 1
 
@@ -12,7 +12,7 @@ if errorlevel 1 exit /b 1
     -a -f -g 5 -o "t_###.img" -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tif"
 (
-    echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img
+    echo 9f01e41a1e01ad59668450160c873214  t_000.img
 ) | sed -e "s/[[:space:]]*$//" | md5sum -c -
 if errorlevel 1 exit /b 1
 
@@ -20,7 +20,7 @@ if errorlevel 1 exit /b 1
     -a -f -g 5 -o "t_###.img" -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tvips"
 (
-    echo 29a3d5c42f0a2a05312a587934f1ab76  t_000.img
-    echo 6e3d98bf09a8796f2c47609af97d160a  t_001.img
+    echo 9f01e41a1e01ad59668450160c873214  t_000.img
+    echo 18e37588ab86e294124183998f3bf73c  t_001.img
 ) | sed -e "s/[[:space:]]*$//" | md5sum -c -
 if errorlevel 1 exit /b 1
