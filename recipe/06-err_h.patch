@@ -13,7 +13,7 @@ provides fallback implementations for the necessary functions.
  # Check whether certain error numbers are defined by <errno.h>.
  CHECK_SYMBOL_EXISTS(EMSGSIZE errno.h HAVE_EMSGSIZE)
  CHECK_SYMBOL_EXISTS(ENOMSG errno.h HAVE_ENOMSG)
-@@ -245,6 +249,7 @@ target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
+@@ -246,6 +250,7 @@ target_link_libraries(dumpframe Iconv::Iconv ${TIFF_LIBRARIES})
  
  if(BUILD_JIFFIES)
  add_executable(fixpoint
@@ -21,7 +21,7 @@ provides fallback implementations for the necessary functions.
    "delta_t.cpp"
    "fixpoint.c")
  add_dependencies(fixpoint _update_version_h)
-@@ -335,6 +340,7 @@ target_link_libraries(mrc2smv Iconv::Iconv)
+@@ -341,6 +346,7 @@ target_link_libraries(mrc2smv Iconv::Iconv)
  
  if(BUILD_JIFFIES)
  add_executable(rawdump

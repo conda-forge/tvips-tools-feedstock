@@ -2,7 +2,7 @@ libR and GSL are not actually used, but img2px should not be
 distributed because it includes GPLd code.
 --- tvips/CMakeLists.txt.orig
 +++ tvips/CMakeLists.txt
-@@ -31,18 +31,6 @@ include(TestBigEndian)
+@@ -31,32 +31,10 @@ include(TestBigEndian)
  find_package(FLEX 2.5.34 REQUIRED)
  
  
@@ -21,7 +21,21 @@ distributed because it includes GPLd code.
  # Any POSIX-compliant version of iconv should be fine.
  find_package(Iconv REQUIRED)
  
-@@ -181,10 +169,7 @@ configure_file(
+ 
+-# Any version of libR should be fine.  Unlike find_package(),
+-# pkg_check_modules() does not return the full path to shared
+-# libraries, so the link directories are amended instead (see
+-# https://gitlab.kitware.com/cmake/cmake/issues/15804).
+-find_package(PkgConfig REQUIRED)
+-pkg_check_modules(LIBR REQUIRED libR)
+-include_directories("${LIBR_INCLUDE_DIRS}")
+-link_directories("${LIBR_LIBRARY_DIRS}")
+-
+-
+ # Any POSIX-compliant thread library should be fine.
+ find_package(Threads REQUIRED)
+ 
+@@ -191,10 +169,7 @@ configure_file(
  add_definitions(-DHAVE_CONFIG_H)
  include_directories(
    "${PROJECT_SOURCE_DIR}"
@@ -32,11 +46,11 @@ distributed because it includes GPLd code.
    "${TIFF_INCLUDE_DIR}")
  
  
-@@ -303,7 +288,7 @@ add_executable(img2px
-   "tvips.c"
+@@ -318,7 +293,7 @@ add_executable(img2px
    "util.c")
  add_dependencies(img2px _update_version_h)
--target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} "R")
+ target_compile_features(img2px PRIVATE cxx_constexpr)
+-target_link_libraries(img2px Iconv::Iconv ${GSL_LIBRARIES} ${LIBR_LIBRARIES})
 +target_link_libraries(img2px Iconv::Iconv)
  
  add_executable(img2splot

@@ -102,7 +102,7 @@ be included.
          tv->tv_sec = mktimez(&tm, zone);
 --- tvips/util.c.orig
 +++ tvips/util.c
-@@ -172,7 +172,7 @@ mkstemplate(const char *template, size_t seqno, int force)
+@@ -173,7 +173,7 @@ mkstemplate(const char *template, size_t seqno, int force)
      char *dir, *path;
      size_t len;
      mode_t mode, mode_save;
@@ -111,7 +111,7 @@ be included.
  
  
      len = strlen(template) + 1;
-@@ -197,13 +197,16 @@ mkstemplate(const char *template, size_t seqno, int force)
+@@ -198,13 +198,16 @@ mkstemplate(const char *template, size_t seqno, int force)
          return (-1);
      }
  

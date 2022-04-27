@@ -1,7 +1,7 @@
 Avoid setenv(3) with zero-length name parameter.
 --- tvips/util.c.orig
 +++ tvips/util.c
-@@ -238,23 +238,22 @@ mktimez(struct tm *tm, const char *zone)
+@@ -239,23 +239,22 @@ mktimez(struct tm *tm, const char *zone)
      time_t t;
      int errno_save;
  
