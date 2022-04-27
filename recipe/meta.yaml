@@ -41,12 +41,12 @@ requirements:
     - make                      # [unix]
   host:
     - libiconv                     # [win]
-    - m2w64-libwinpthread-git      # [win]
     - libtiff                 4.*
+    - m2w64-libwinpthread-git      # [win]
   run:
     - libiconv                                        # [win]
-    - m2w64-libwinpthread-git                         # [win]
     - {{ pin_compatible('libtiff', max_pin='x.x') }}
+    - m2w64-libwinpthread-git                         # [win]
 
 test:
   requires:

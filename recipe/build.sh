@@ -7,7 +7,6 @@ rm "${SRC_DIR}/VERSION"
 cmake ${CMAKE_ARGS}                              \
     -DCMAKE_C_FLAGS:STRING="${CFLAGS} -Wall"     \
     -DCMAKE_CXX_FLAGS:STRING="${CXXFLAGS} -Wall" \
-    ${iconv_defines}                             \
     "${SRC_DIR}"
 
 cmake --build . --parallel "${CPU_COUNT}"
