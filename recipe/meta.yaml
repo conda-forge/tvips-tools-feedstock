@@ -1,6 +1,6 @@
 {% set name = "TVIPS tools" %}
 {% set tarname = name|lower|replace(' ', '-') %}
-{% set version = "0.0.2" %}
+{% set version = "0.0.3" %}
 
 package:
   name: {{ tarname }}
@@ -8,12 +8,13 @@ package:
 
 source:
   url: https://cryoem.ucla.edu/downloads/{{ tarname }}-{{ version }}.tar.gz
-  sha256: f7483e0bd79c269af1e603c660b6d27123f995f1fad25364a789afbcbb971cc0
+  sha256: 422d04be4b36f00ababe672740ebc20e13b30a5933e6f801af56ab691d9d6cac
   patches:
     - 01-setenv.patch
     - 02-version.patch
     - 03-install.patch
-    - 04-warnings.patch
+    - 04-iconv.patch
+    - 05-warnings.patch
 
 build:
   ignore_run_exports_from:
@@ -27,14 +28,18 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - cmake   >=3.2,<4
-    - coreutils         # [unix]
-    - m2-coreutils      # [win]
-    - libxslt >=0.13.0
-    - make              # [unix]
+    - cmake        >=3.11,<4
+    - coreutils                 # [unix]
+    - flex         >=2.5.34,<3  # [unix]
+    - libxslt      >=0.13.0
+    - m2-coreutils              # [win]
+    - m2-flex      >=2.5.34,<3  # [win]
+    - make                      # [unix]
   host:
-    - libtiff 4.*
+    - libiconv      # [win]
+    - libtiff  4.*
   run:
+    - libiconv                                        # [win]
     - {{ pin_compatible('libtiff', max_pin='x.x') }}
 
 test:
