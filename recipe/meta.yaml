@@ -28,7 +28,7 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - cmake        >=3.11,<4
+    - cmake        >=3.15,<4
     - coreutils                 # [unix]
     - flex         >=2.5.34,<3  # [unix]
     - libxslt      >=0.13.0
