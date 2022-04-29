@@ -36,11 +36,13 @@ requirements:
     - m2-flex      >=2.5.34,<3  # [win]
     - make                      # [unix]
   host:
-    - libiconv      # [win]
-    - libtiff  4.*
+    - libiconv                     # [win]
+    - libtiff                 4.*
+    - m2w64-libwinpthread-git      # [win]
   run:
     - libiconv                                        # [win]
     - {{ pin_compatible('libtiff', max_pin='x.x') }}
+    - m2w64-libwinpthread-git                         # [win]
 
 test:
   requires:
