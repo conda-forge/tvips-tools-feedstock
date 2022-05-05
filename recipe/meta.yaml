@@ -46,12 +46,10 @@ requirements:
 
 test:
   requires:
-    - coreutils     # [unix]
-    - m2-coreutils  # [win]
-    - m2-sed        # [win]
-  source_files:
-    - test/*.tif
-    - test/*.tvips
+    - coreutils                         # [unix]
+    - m2-coreutils                      # [win]
+    - m2-sed                            # [win]
+    - microed-data >=0.1.0.dev4,<0.2.0
 
 about:
   home: https://cryoem.ucla.edu/microed
