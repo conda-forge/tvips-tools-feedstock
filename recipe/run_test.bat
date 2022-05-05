@@ -1,6 +1,6 @@
 @echo off
 
-"%PREFIX%\bin\tiff2smv"                       ^
+tiff2smv                                      ^
     -f -g 5 -o "t_###.img" -r 0.09 -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tif"
 (
@@ -8,7 +8,7 @@
 ) | sed -e "s/[[:space:]]*$//" | md5sum -c -
 if errorlevel 1 exit /b 1
 
-"%PREFIX%\bin\tvips2smv"                      ^
+tvips2smv                                     ^
     -f -g 5 -o "t_###.img" -r 0.09 -z EST5EDT ^
     "%SRC_DIR%\test\movie23_000.tvips"
 (
