@@ -104,7 +104,7 @@ FindIconv was introduced in CMake 3.11.
 + */
 +#cmakedefine Iconv_IS_BUILT_IN
 +#ifdef Iconv_IS_BUILT_IN
-+#    define TVIPS_TOOLS_ICONV_H <iconv.h>
++#    define TVIPS_TOOLS_ICONV_H "@Iconv_INCLUDE_DIR@/iconv.h"
 +#else
 +#    define TVIPS_TOOLS_ICONV_H "@Iconv_INCLUDE_DIR@/iconv.h"
 +#endif
