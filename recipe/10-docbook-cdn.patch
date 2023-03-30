@@ -1,0 +1,12 @@
+Use DocBook XSL CDN, introduced with docbook-xsl 1.79.2.
+--- tvips/CMakeLists.txt.orig
++++ tvips/CMakeLists.txt
+@@ -399,7 +399,7 @@
+ find_program(XSLTPROC xsltproc)
+ mark_as_advanced(XSLTPROC)
+ 
+-set(xml_ns "http://docbook.sourceforge.net/release/xsl-ns/current")
++set(xml_ns "http://cdn.docbook.org/release/xsl/current")
+ 
+ add_custom_command(
+   COMMAND "${XSLTPROC}" --output "${PROJECT_BINARY_DIR}/ht2wavelength.html"

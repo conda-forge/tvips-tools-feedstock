@@ -19,6 +19,7 @@ source:
     - 07-windows.patch
     - 08-gcc.patch
     - 09-warnings.patch
+    - 10-docbook-cdn.patch
 
 build:
   ignore_run_exports_from:
@@ -34,6 +35,7 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake        >=3.15,<4
     - coreutils                 # [unix]
+    - docbook-xsl
     - flex         >=2.5.34,<3  # [unix]
     - libxslt      >=0.13.0
     - m2-coreutils              # [win]
