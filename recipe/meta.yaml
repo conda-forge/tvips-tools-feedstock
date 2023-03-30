@@ -15,11 +15,12 @@ source:
     - 03-install.patch
     - 04-iconv.patch
     - 05-warnings.patch
+    - 06-docbook-cdn.patch
 
 build:
   ignore_run_exports_from:
     - {{ compiler('cxx') }}
-  number: 1
+  number: 2
   script_env:
     - USER      # [unix]
     - USERNAME  # [win]
@@ -30,6 +31,7 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake        >=3.15,<4
     - coreutils                 # [unix]
+    - docbook-xsl
     - flex         >=2.5.34,<3  # [unix]
     - libxslt      >=0.13.0
     - m2-coreutils              # [win]
