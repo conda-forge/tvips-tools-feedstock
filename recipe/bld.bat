@@ -6,7 +6,7 @@ del "%SRC_DIR%\VERSION"
 
 
 :: This should not be necessary.
-call "%CONDA_PREFIX%\etc\conda\activate.d\libxml2_activate.bat"
+set XML_CATALOG_FILES=%CONDA_PREFIX%\share\docbook-xsl\catalog.xml
 
 cmake -G "MinGW Makefiles" %CMAKE_ARGS%                               ^
     -DCMAKE_C_FLAGS:STRING="%CFLAGS% -D_POSIX_C_SOURCE=200809L -Wall" ^
