@@ -4,6 +4,10 @@ echo v0.1.0-dev.3-0-g984df1b-experimental/jiffies ^
     > "%SRC_DIR%\TVIPS-TOOLS-VERSION-FILE"
 del "%SRC_DIR%\VERSION"
 
+
+:: This should not be necessary.
+set XML_CATALOG_FILES=%CONDA_PREFIX%\share\docbook-xsl\catalog.xml
+
 cmake -G "MinGW Makefiles" %CMAKE_ARGS%                               ^
     -DCMAKE_C_FLAGS:STRING="%CFLAGS% -D_POSIX_C_SOURCE=200809L -Wall" ^
     -DCMAKE_COLOR_MAKEFILE:BOOL=OFF                                   ^
