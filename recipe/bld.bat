@@ -6,7 +6,7 @@ del "%SRC_DIR%\VERSION"
 
 
 :: This should not be necessary.
-set XML_CATALOG_FILES=%CONDA_PREFIX%\share\docbook-xsl\catalog.xml
+set XML_CATALOG_FILES=%CONDA_PREFIX%\etc\xml\catalog
 
 cmake -G "MinGW Makefiles" %CMAKE_ARGS%                               ^
     -DCMAKE_C_FLAGS:STRING="%CFLAGS% -D_POSIX_C_SOURCE=200809L -Wall" ^
