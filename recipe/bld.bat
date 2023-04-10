@@ -13,7 +13,10 @@ dir %CONDA_PREFIX%\etc
 echo M3
 dir %CONDA_PREFIX%\etc\xml
 echo M4
-set XML_CATALOG_FILES=%CONDA_PREFIX%\share\docbook-xsl\catalog.xml
+set | findstr catalog
+echo M5
+:: set XML_CATALOG_FILES=%CONDA_PREFIX%\share\docbook-xsl\catalog.xml
+echo M6
 
 cmake -G "MinGW Makefiles" %CMAKE_ARGS%                               ^
     -DCMAKE_C_FLAGS:STRING="%CFLAGS% -D_POSIX_C_SOURCE=200809L -Wall" ^
