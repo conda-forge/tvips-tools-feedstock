@@ -4,7 +4,7 @@ iconv_args="-DIconv_INCLUDE_DIR:PATH=${CONDA_BUILD_SYSROOT}/usr/include"
 if test -n "${LD_RUN_PATH}"; then
     iconv_args="${iconv_args} -DIconv_IS_BUILT_IN:BOOL=TRUE"
 elif test -n "${OSX_ARCH}"; then
-    iconv_args="${iconv_args} -DIconv_LIBRARY:PATH=${CONDA_BUILD_SYSROOT}/usr/lib/libiconv.dylib"
+    iconv_args="${iconv_args} -DIconv_LIBRARY:PATH=${CONDA_BUILD_SYSROOT}/usr/lib/libiconv.tbd"
 fi
 
 echo "v0.0.3-0-g6375bc3-master"             \
