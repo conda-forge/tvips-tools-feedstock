@@ -11,10 +11,10 @@ cmake -G "MinGW Makefiles" %CMAKE_ARGS%                               ^
     "%SRC_DIR%"
 if errorlevel 1 exit /b 1
 
-cmake --build . --parallel "%CPU_COUNT%"
+cmake --build .
 if errorlevel 1 exit /b 1
 
-cmake --build . --parallel "%CPU_COUNT%" --target man
+cmake --build . --target man
 if errorlevel 1 exit /b 1
 
 cmake --install . --prefix "%PREFIX%"
