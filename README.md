@@ -47,6 +47,13 @@ Current build status
                 </a>
               </td>
             </tr><tr>
+              <td>osx_arm64</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=15904&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tvips-tools-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
               <td>win_64</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=15904&branchName=main">
@@ -71,14 +78,14 @@ Current release info
 Installing tvips-tools
 ======================
 
-Installing `tvips-tools` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
+Installing `tvips-tools` from the `conda-forge/label/tvips-tools_dev` channel can be achieved by adding `conda-forge/label/tvips-tools_dev` to your channels with:
 
 ```
-conda config --add channels conda-forge
+conda config --add channels conda-forge/label/tvips-tools_dev
 conda config --set channel_priority strict
 ```
 
-Once the `conda-forge` channel has been enabled, `tvips-tools` can be installed with `conda`:
+Once the `conda-forge/label/tvips-tools_dev` channel has been enabled, `tvips-tools` can be installed with `conda`:
 
 ```
 conda install tvips-tools
@@ -93,26 +100,26 @@ mamba install tvips-tools
 It is possible to list all of the versions of `tvips-tools` available on your platform with `conda`:
 
 ```
-conda search tvips-tools --channel conda-forge
+conda search tvips-tools --channel conda-forge/label/tvips-tools_dev
 ```
 
 or with `mamba`:
 
 ```
-mamba search tvips-tools --channel conda-forge
+mamba search tvips-tools --channel conda-forge/label/tvips-tools_dev
 ```
 
 Alternatively, `mamba repoquery` may provide more information:
 
 ```
 # Search all versions available on your platform:
-mamba repoquery search tvips-tools --channel conda-forge
+mamba repoquery search tvips-tools --channel conda-forge/label/tvips-tools_dev
 
 # List packages depending on `tvips-tools`:
-mamba repoquery whoneeds tvips-tools --channel conda-forge
+mamba repoquery whoneeds tvips-tools --channel conda-forge/label/tvips-tools_dev
 
 # List dependencies of `tvips-tools`:
-mamba repoquery depends tvips-tools --channel conda-forge
+mamba repoquery depends tvips-tools --channel conda-forge/label/tvips-tools_dev
 ```
 
 
@@ -134,7 +141,7 @@ available continuous integration services. Thanks to the awesome service provide
 [CircleCI](https://circleci.com/), [AppVeyor](https://www.appveyor.com/),
 [Drone](https://cloud.drone.io/welcome), and [TravisCI](https://travis-ci.com/)
 it is possible to build and upload installable packages to the
-[conda-forge](https://anaconda.org/conda-forge) [Anaconda-Cloud](https://anaconda.org/)
+[conda-forge](https://anaconda.org/conda-forge) [anaconda.org](https://anaconda.org/)
 channel for Linux, Windows and OSX respectively.
 
 To manage the continuous integration and simplify feedstock maintenance
