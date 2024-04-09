@@ -24,7 +24,7 @@ source:
 build:
   ignore_run_exports_from:
     - {{ compiler('cxx') }}
-  number: 3
+  number: 4
   script_env:
     - USER      # [unix]
     - USERNAME  # [win]
@@ -55,7 +55,7 @@ test:
     - coreutils                         # [unix]
     - m2-coreutils                      # [win]
     - m2-sed                            # [win]
-    - microed-data >=0.1.0.dev4,<0.2.0
+    - microed-data >=0.1.0.dev4,<=0.1.0.dev7
 
 about:
   home: https://cryoem.ucla.edu/microed

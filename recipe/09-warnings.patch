@@ -109,6 +109,97 @@
  
  
      /* Get a pointer to the TemData structure using the new tag, which
+--- tvips/tiff2smv.c.orig
++++ tvips/tiff2smv.c
+@@ -612,15 +612,17 @@
+ 
+         stream = fopen(tv_path[i].path, "rb");
+         if (stream == NULL) {
++            warnx("Failed to open %s for reading", tv_path[i].path);
+             free(tv_path);
+-            err(EXIT_FAILURE, "Failed to open %s for reading", tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+         handle = tvips_open_tiff(stream);
+         if (handle == NULL) {
++            warnx("Failed to read %s", tv_path[i].path);
+             fclose(stream);
+             free(tv_path);
+-            err(EXIT_FAILURE, "Failed to read %s", tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+ 
+@@ -646,10 +648,11 @@
+          */
+         frame = tvips_read_tiff(handle, zone);
+         if (frame == NULL) {
++            warnx("Failed to read %s", tv_path[i].path);
+             tvips_close_tiff(handle);
+             fclose(stream);
+             free(tv_path);
+-            err(EXIT_FAILURE, "Failed to read %s", tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+         if (g_opt >= 0) {
+@@ -723,14 +726,16 @@
+              * system, then apply additional rotations.
+              */
+             if (flip != 0 && frame_panel_flip(frame->panel) != 0) {
++                warnx("Failed to flip %s", tv_path[i].path);
+                 frame_free(frame);
+                 free(tv_path);
+-                err(EXIT_FAILURE, "Failed to flip %s", tv_path[i].path);
++                return (EXIT_FAILURE);
+             }
+             if (frame_panel_rot90(frame->panel, k) != 0) {
++                warnx("Failed to rotate %s", tv_path[i].path);
+                 frame_free(frame);
+                 free(tv_path);
+-                err(EXIT_FAILURE, "Failed to rotate %s", tv_path[i].path);
++                return (EXIT_FAILURE);
+             }
+ 
+ 
+@@ -861,12 +866,12 @@
+                         0);
+                 }
+                 if (frame->panel == NULL) {
++                    warnx("Failed to extract %zd-by-%zd subimage from %s",
++                          min, min, tv_path[i].path);
+                     frame_panel_free(panel);
+                     frame_free(frame);
+                     free(tv_path);
+-                    err(EXIT_FAILURE,
+-                        "Failed to extract %zd-by-%zd subimage from %s",
+-                        min, min, tv_path[i].path);
++                    return (EXIT_FAILURE);
+                 }
+ 
+ 
+@@ -875,16 +880,18 @@
+                  * center, and then write the frame.
+                  */
+                 if (flip != 0 && frame_panel_flip(frame->panel) != 0) {
++                    warnx("Failed to flip %s", tv_path[i].path);
+                     frame_panel_free(panel);
+                     frame_free(frame);
+                     free(tv_path);
+-                    err(EXIT_FAILURE, "Failed to flip %s", tv_path[i].path);
++                    return (EXIT_FAILURE);
+                 }
+                 if (frame_panel_rot90(frame->panel, k) != 0) {
++                    warnx("Failed to rotate %s", tv_path[i].path);
+                     frame_panel_free(panel);
+                     frame_free(frame);
+                     free(tv_path);
+-                    err(EXIT_FAILURE, "Failed to rotate %s", tv_path[i].path);
++                    return (EXIT_FAILURE);
+                 }
+ 
+                 if (isfinite(beam_center[0])) {
 --- tvips/tvips.c.orig
 +++ tvips/tvips.c
 @@ -259,6 +259,7 @@ tvips_readfile(
