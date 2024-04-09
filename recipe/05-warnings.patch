@@ -39,3 +39,57 @@
  
  
      /* Allocate and initialize the frame structure.
+--- tvips/tiff2smv.c.orig
++++ tvips/tiff2smv.c
+@@ -496,18 +496,19 @@
+     for (i = 0; i < nmemb; i++) {
+         stream = fopen(angle_tv_path[i].path, "rb");
+         if (stream == NULL) {
++            warnx("Failed to open %s for reading", angle_tv_path[i].path);
+             free(angle_tv_path);
+             tvips_output_free(output);
+-            err(EXIT_FAILURE,
+-                "Failed to open %s for reading", angle_tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+         handle = tvips_open_tiff(stream);
+         if (handle == NULL) {
++            warnx("Failed to read %s", angle_tv_path[i].path);
+             fclose(stream);
+             free(angle_tv_path);
+             tvips_output_free(output);
+-            err(EXIT_FAILURE, "Failed to read %s", angle_tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+ 
+@@ -546,22 +547,25 @@
+         tvips_close_tiff(handle);
+         fclose(stream);
+         if (frame == NULL) {
++            warnx("Failed to read %s", angle_tv_path[i].path);
+             free(angle_tv_path);
+             tvips_output_free(output);
+-            err(EXIT_FAILURE, "Failed to read %s", angle_tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+         if (param.flip != 0 && frame_flip(frame) != 0) {
++            warnx("Failed to flip %s", angle_tv_path[i].path);
+             frame_free(frame);
+             free(angle_tv_path);
+             tvips_output_free(output);
+-            err(EXIT_FAILURE, "Failed to flip %s", angle_tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+         if (frame_rot90(frame, param.k) != 0) {
++            warnx("Failed to rotate %s", angle_tv_path[i].path);
+             frame_free(frame);
+             free(angle_tv_path);
+             tvips_output_free(output);
+-            err(EXIT_FAILURE, "Failed to rotate %s", angle_tv_path[i].path);
++            return (EXIT_FAILURE);
+         }
+ 
+ 
