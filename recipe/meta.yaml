@@ -46,9 +46,9 @@ requirements:
     - libtiff                 4.*
     - m2w64-libwinpthread-git      # [win]
   run:
-    - libiconv                                        # [win]
-    - {{ pin_compatible('libtiff', max_pin='x.x') }}
-    - m2w64-libwinpthread-git                         # [win]
+    - libiconv                     # [win]
+    - libtiff
+    - m2w64-libwinpthread-git      # [win]
 
 test:
   requires:
